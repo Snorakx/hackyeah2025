@@ -1,33 +1,33 @@
 {
-  "name": "diet-week",
+  "name": "zus-pension-simulator",
   "version": "1.0.0",
-  "description": "Diet Week - Weight Loss App",
-  "private": true,
+  "description": "Symulator emerytalny ZUS - narzędzie edukacyjne do prognozowania wysokości emerytury",
+  "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd cut-sprint-backend && npm run dev",
-    "dev:frontend": "cd cut-sprint-front && npm run dev",
-    "build": "npm run build:backend && npm run build:frontend",
-    "build:backend": "cd cut-sprint-backend && npm run build",
-    "build:frontend": "cd cut-sprint-front && npm run build",
-    "start": "npm run start:backend",
-    "start:backend": "cd cut-sprint-backend && npm run start",
-    "start:frontend": "cd cut-sprint-front && npm run start",
-    "install:all": "npm install && cd cut-sprint-backend && npm install && cd ../cut-sprint-front && npm install",
-    "clean": "rm -rf node_modules cut-sprint-backend/node_modules cut-sprint-front/node_modules",
-    "db:push": "supabase db push",
-    "db:reset": "echo '🚨 DESTRUCTIVE ACTION BLOCKED!' && echo 'Use: npm run db:push' instead' && echo 'This prevents data loss!' && exit 1",
-    "db:reset-force": "echo '⚠️  FORCE RESET - THIS WILL DELETE ALL DATA!' && echo 'Type: supabase db reset' && echo 'This is your last warning!' && exit 1",
-    "db:status": "supabase db status",
-    "db:diff": "supabase db diff",
-    "supabase:start": "supabase start",
-    "supabase:stop": "supabase stop",
-    "supabase:status": "supabase status"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4",
+    "chart.js": "^4.4.0",
+    "vue-chartjs": "^5.2.0",
+    "xlsx": "^0.18.5",
+    "date-fns": "^2.30.0"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@vitejs/plugin-vue": "^4.3.4",
+    "vite": "^4.4.9"
   },
-  "keywords": ["diet", "weight-loss", "nutrition", "health"],
-  "author": "Cut Sprint Team",
+  "keywords": [
+    "pension",
+    "simulator",
+    "zus",
+    "emerytura",
+    "vue"
+  ],
+  "author": "ZUS Hackathon 2025",
   "license": "MIT"
 }
