@@ -53,7 +53,58 @@ check_node() {
         print_error "Node.js is not installed. Please install Node.js 18+ and try again."
         exit 1
     fi
-    print_status "Node.js is available"
+    
+    # Check Node.js version
+    NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
+    if [ "$NODE_VERSION" -lt 18 ]; then
+        print_error "Node.js version 18+ required. Current version: $(node --version)"
+        exit 1
+    fi
+    
+    print_status "Node.js $(node --version) is available"
+}
+
+# Function to check system requirements
+check_requirements() {
+    print_subheader "Checking system requirements..."
+    
+    # Check Node.js
+    if ! command -v node &> /dev/null; then
+        print_error "❌ Node.js is not installed"
+        print_info "Install from: https://nodejs.org/"
+        exit 1
+    fi
+    
+    NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
+    if [ "$NODE_VERSION" -lt 18 ]; then
+        print_error "❌ Node.js 18+ required. Current: $(node --version)"
+        print_info "Update from: https://nodejs.org/"
+        exit 1
+    fi
+    print_status "✅ Node.js $(node --version)"
+    
+    # Check Docker
+    if ! command -v docker &> /dev/null; then
+        print_error "❌ Docker is not installed"
+        print_info "Install from: https://docker.com/"
+        exit 1
+    fi
+    
+    if ! docker info > /dev/null 2>&1; then
+        print_error "❌ Docker is not running"
+        print_info "Start Docker Desktop and try again"
+        exit 1
+    fi
+    print_status "✅ Docker is running"
+    
+    # Check Git
+    if ! command -v git &> /dev/null; then
+        print_warning "⚠️  Git is not installed (optional)"
+    else
+        print_status "✅ Git is available"
+    fi
+    
+    print_status "All requirements met!"
 }
 
 # Function to setup environment
@@ -64,7 +115,7 @@ setup_env() {
     if [ ! -f "cut-sprint-backend/.env" ]; then
         if [ -f "cut-sprint-backend/env.example" ]; then
             cp cut-sprint-backend/env.example cut-sprint-backend/.env
-            print_status "Backend .env created"
+            print_status "Backend .env created from env.example"
         else
             print_warning "Backend env.example not found"
         fi
@@ -72,16 +123,19 @@ setup_env() {
         print_info "Backend .env already exists"
     fi
     
-    # Setup core framework environment
+    # Setup core framework environment (optional)
     if [ ! -f "coderno-ai-app-core/.env" ]; then
-        if [ -f "coderno-ai-app-core/env.example" ]; then
-            cp coderno-ai-app-core/env.example coderno-ai-app-core/.env
-            print_status "Core framework .env created"
-        else
-            print_info "Core framework .env not needed"
-        fi
+        print_info "Core framework uses default configuration"
+        print_info "No .env file needed for core framework"
     else
         print_info "Core framework .env already exists"
+    fi
+    
+    # Check if .env files are properly configured
+    if [ -f "cut-sprint-backend/.env" ]; then
+        print_status "Backend environment configured"
+    else
+        print_warning "Backend .env not found - some features may not work"
     fi
 }
 
@@ -311,16 +365,17 @@ show_help() {
     echo "  logs                     Show logs (all services)"
     echo "  logs [service]           Show logs for specific service"
     echo "  cleanup                  Remove all containers and volumes"
+    echo "  check                    Check system requirements"
     echo "  help                     Show this help message"
     echo ""
     echo "Examples:"
-    echo "  ./cli.sh setup"
-    echo "  ./cli.sh create-app"
-    echo "  ./cli.sh start"
-    echo "  ./cli.sh frontend fitness"
-    echo "  ./cli.sh frontend finance"
-    echo "  ./cli.sh logs postgres"
-    echo "  ./cli.sh status"
+    echo "  ./cli.sh check           # Check system requirements"
+    echo "  ./cli.sh setup           # First time setup"
+    echo "  ./cli.sh create-app      # Create new app"
+    echo "  ./cli.sh start           # Start all services"
+    echo "  ./cli.sh frontend fitness # Start specific app"
+    echo "  ./cli.sh status          # Check status"
+    echo "  ./cli.sh logs postgres  # View logs"
     echo ""
     echo "Available Apps:"
     if [ -d "coderno-ai-app-core/apps" ]; then
@@ -384,12 +439,15 @@ start_all() {
 case "$1" in
     "setup")
         print_header "Setting up AI App Framework"
-        check_docker
-        check_node
+        check_requirements
         setup_env
         install_deps
         start_supabase
         print_status "Setup complete!"
+        print_info "🚀 Next steps:"
+        print_info "  ./cli.sh start        # Start all services"
+        print_info "  ./cli.sh create-app   # Create new app"
+        print_info "  ./cli.sh status       # Check status"
         ;;
     "start")
         start_all
@@ -433,6 +491,10 @@ case "$1" in
         ;;
     "cleanup")
         cleanup
+        ;;
+    "check")
+        print_header "Checking System Requirements"
+        check_requirements
         ;;
     "help"|"--help"|"-h"|"")
         show_help
