@@ -43,16 +43,23 @@ export default {
 </script>
 
 <style>
-/* ZUS Color Scheme */
+/* ZUS Color Scheme - zgodne z Księgą Znaku ZUS */
 :root {
-  --zus-orange: rgb(255, 179, 79);
-  --zus-green: rgb(0, 153, 63);
-  --zus-gray: rgb(190, 195, 206);
-  --zus-blue: rgb(63, 132, 210);
-  --zus-dark-blue: rgb(0, 65, 110);
-  --zus-red: rgb(240, 94, 94);
-  --zus-black: rgb(0, 0, 0);
+  --zus-orange: rgb(255, 179, 79); /* R: 255; G:179; B:79 */
+  --zus-green: rgb(0, 153, 63); /* R: 0; G: 153; B: 63 */
+  --zus-gray: rgb(190, 195, 206); /* R: 190; G: 195; B: 206 */
+  --zus-blue: rgb(63, 132, 210); /* R: 63; G: 132; B: 210 */
+  --zus-dark-blue: rgb(0, 65, 110); /* R: 0; G: 65; B: 110 */
+  --zus-red: rgb(240, 94, 94); /* R: 240; G: 94; B: 94 */
+  --zus-black: rgb(0, 0, 0); /* R: 0; G: 0; B: 0 */
   --zus-white: rgb(255, 255, 255);
+
+  /* Dodatkowe kolory dla lepszej dostępności */
+  --zus-light-green: rgb(76, 175, 80);
+  --zus-dark-green: rgb(0, 100, 40);
+  --zus-light-gray: rgb(245, 245, 245);
+  --zus-text-dark: rgb(33, 37, 41);
+  --zus-text-light: rgb(108, 117, 125);
 }
 
 * {
