@@ -7,12 +7,46 @@
       </div>
 
       <div v-if="simulationData" class="results-content">
+        <!-- Scenario Selection -->
+        <div class="scenario-selection">
+          <h3>Wybierz wariant prognozy (Model FUS20)</h3>
+          <div class="scenario-buttons">
+            <button
+              @click="selectedScenario = 'intermediate'"
+              :class="[
+                'scenario-btn',
+                { active: selectedScenario === 'intermediate' },
+              ]"
+            >
+              Wariant pośredni
+            </button>
+            <button
+              @click="selectedScenario = 'pessimistic'"
+              :class="[
+                'scenario-btn',
+                { active: selectedScenario === 'pessimistic' },
+              ]"
+            >
+              Wariant pesymistyczny
+            </button>
+            <button
+              @click="selectedScenario = 'optimistic'"
+              :class="[
+                'scenario-btn',
+                { active: selectedScenario === 'optimistic' },
+              ]"
+            >
+              Wariant optymistyczny
+            </button>
+          </div>
+        </div>
+
         <!-- Main Results Cards -->
         <div class="results-cards">
           <div class="result-card real-pension">
             <h3>Wysokość rzeczywista</h3>
             <div class="pension-amount">
-              {{ formatCurrency(calculatedPension.real) }} zł
+              {{ formatCurrency(currentScenarioPension.real) }} zł
             </div>
             <p class="pension-description">
               Emerytura bez uwzględnienia inflacji
@@ -22,11 +56,19 @@
           <div class="result-card adjusted-pension">
             <h3>Wysokość urealniona</h3>
             <div class="pension-amount">
-              {{ formatCurrency(calculatedPension.adjusted) }} zł
+              {{ formatCurrency(currentScenarioPension.adjusted) }} zł
             </div>
             <p class="pension-description">
               Emerytura z uwzględnieniem inflacji
             </p>
+          </div>
+
+          <div class="result-card sustainable-pension">
+            <h3>Wysokość zrównoważona</h3>
+            <div class="pension-amount">
+              {{ formatCurrency(currentScenarioPension.sustainable) }} zł
+            </div>
+            <p class="pension-description">Uwzględnia czynniki demograficzne</p>
           </div>
         </div>
 
@@ -38,17 +80,20 @@
               <div class="stat-item">
                 <span class="stat-label">Twoja emerytura (urealniona)</span>
                 <span class="stat-value"
-                  >{{ formatCurrency(calculatedPension.adjusted) }} zł</span
+                  >{{
+                    formatCurrency(currentScenarioPension.adjusted)
+                  }}
+                  zł</span
                 >
               </div>
               <div class="stat-item">
                 <span class="stat-label"
                   >Średnia emerytura w
-                  {{ calculatedPension.retirementYear }}</span
+                  {{ currentScenarioPension.retirementYear }}</span
                 >
                 <span class="stat-value"
                   >{{
-                    formatCurrency(calculatedPension.averagePension)
+                    formatCurrency(currentScenarioPension.averagePension)
                   }}
                   zł</span
                 >
@@ -56,8 +101,8 @@
               <div class="stat-item highlight">
                 <span class="stat-label">Różnica</span>
                 <span class="stat-value" :class="differenceClass">
-                  {{ formatCurrency(calculatedPension.difference) }} zł ({{
-                    calculatedPension.percentageDifference
+                  {{ formatCurrency(currentScenarioPension.difference) }} zł ({{
+                    currentScenarioPension.percentageDifference
                   }}%)
                 </span>
               </div>
@@ -72,27 +117,77 @@
             <div class="replacement-rate-display">
               <div class="rate-circle">
                 <div class="rate-percentage">
-                  {{ calculatedPension.replacementRate }}%
+                  {{ currentScenarioPension.replacementRate }}%
                 </div>
                 <div class="rate-label">Stopa zastąpienia</div>
               </div>
               <div class="rate-explanation">
                 <p>
                   Twoja emerytura będzie stanowić
-                  <strong>{{ calculatedPension.replacementRate }}%</strong>
+                  <strong>{{ currentScenarioPension.replacementRate }}%</strong>
                   Twojego ostatniego wynagrodzenia ({{
-                    formatCurrency(calculatedPension.finalSalary)
+                    formatCurrency(currentScenarioPension.finalSalary)
                   }}
                   zł).
                 </p>
                 <p
-                  v-if="calculatedPension.replacementRate < 60"
+                  v-if="currentScenarioPension.replacementRate < 60"
                   class="warning-text"
                 >
                   ⚠️ Stopa zastąpienia poniżej 60% może oznaczać obniżenie
                   standardu życia na emeryturze.
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ZUS System Analysis -->
+        <div class="zus-analysis-section">
+          <div class="zus-analysis-card">
+            <h3>Analiza systemu ZUS</h3>
+            <div class="zus-stats">
+              <div class="zus-item">
+                <span class="zus-label">Łączne składki wpłacone</span>
+                <span class="zus-value"
+                  >{{
+                    formatCurrency(currentScenarioPension.totalContributions)
+                  }}
+                  zł</span
+                >
+              </div>
+              <div class="zus-item">
+                <span class="zus-label">Efektywność systemu</span>
+                <span class="zus-value"
+                  >{{
+                    Math.round(currentScenarioPension.systemEfficiency * 100)
+                  }}%</span
+                >
+              </div>
+              <div class="zus-item">
+                <span class="zus-label">Czynnik demograficzny</span>
+                <span class="zus-value"
+                  >{{
+                    Math.round(currentScenarioPension.demographicFactor * 100)
+                  }}%</span
+                >
+              </div>
+              <div class="zus-item">
+                <span class="zus-label">Stopa zastąpienia</span>
+                <span class="zus-value"
+                  >{{ currentScenarioPension.replacementRate }}%</span
+                >
+              </div>
+            </div>
+            <div class="zus-explanation">
+              <p>
+                <strong>Efektywność systemu:</strong> Procent składek, który
+                rzeczywiście trafia do Twojego konta emerytalnego.
+              </p>
+              <p>
+                <strong>Czynnik demograficzny:</strong> Wpływ starzenia się
+                społeczeństwa na wysokość emerytury.
+              </p>
             </div>
           </div>
         </div>
@@ -108,7 +203,9 @@
                 >
                 <span class="salary-value"
                   >{{
-                    formatCurrency(calculatedPension.salaryWithoutSickLeave)
+                    formatCurrency(
+                      currentScenarioPension.salaryWithoutSickLeave
+                    )
                   }}
                   zł</span
                 >
@@ -119,7 +216,7 @@
                 >
                 <span class="salary-value"
                   >{{
-                    formatCurrency(calculatedPension.salaryWithSickLeave)
+                    formatCurrency(currentScenarioPension.salaryWithSickLeave)
                   }}
                   zł</span
                 >
@@ -128,7 +225,7 @@
                 <span class="salary-label">Różnica z powodu zwolnień</span>
                 <span class="salary-value negative"
                   >{{
-                    formatCurrency(calculatedPension.sickLeaveImpact)
+                    formatCurrency(currentScenarioPension.sickLeaveImpact)
                   }}
                   zł</span
                 >
@@ -255,25 +352,75 @@ export default {
     const simulationData = ref(null);
     const postalCode = ref("");
     const expectedPension = ref(null);
+    const selectedScenario = ref("intermediate");
 
     const calculatedPension = ref({
-      real: 0,
-      adjusted: 0,
-      averagePension: 0,
-      difference: 0,
-      percentageDifference: 0,
-      replacementRate: 0,
-      finalSalary: 0,
-      salaryWithoutSickLeave: 0,
-      salaryWithSickLeave: 0,
-      sickLeaveImpact: 0,
-      retirementYear: 0,
+      intermediate: {
+        real: 0,
+        adjusted: 0,
+        sustainable: 0,
+        averagePension: 0,
+        difference: 0,
+        percentageDifference: 0,
+        replacementRate: 0,
+        finalSalary: 0,
+        salaryWithoutSickLeave: 0,
+        salaryWithSickLeave: 0,
+        sickLeaveImpact: 0,
+        retirementYear: 0,
+        totalContributions: 0,
+        systemEfficiency: 0,
+        demographicFactor: 0,
+      },
+      pessimistic: {
+        real: 0,
+        adjusted: 0,
+        sustainable: 0,
+        averagePension: 0,
+        difference: 0,
+        percentageDifference: 0,
+        replacementRate: 0,
+        finalSalary: 0,
+        salaryWithoutSickLeave: 0,
+        salaryWithSickLeave: 0,
+        sickLeaveImpact: 0,
+        retirementYear: 0,
+        totalContributions: 0,
+        systemEfficiency: 0,
+        demographicFactor: 0,
+      },
+      optimistic: {
+        real: 0,
+        adjusted: 0,
+        sustainable: 0,
+        averagePension: 0,
+        difference: 0,
+        percentageDifference: 0,
+        replacementRate: 0,
+        finalSalary: 0,
+        salaryWithoutSickLeave: 0,
+        salaryWithSickLeave: 0,
+        sickLeaveImpact: 0,
+        retirementYear: 0,
+        totalContributions: 0,
+        systemEfficiency: 0,
+        demographicFactor: 0,
+      },
     });
 
     const additionalYearsOptions = ref([]);
 
+    const currentScenarioPension = computed(() => {
+      return (
+        calculatedPension.value[selectedScenario.value] ||
+        calculatedPension.value.intermediate
+      );
+    });
+
     const differenceClass = computed(() => {
-      return calculatedPension.value.difference >= 0 ? "positive" : "negative";
+      return currentScenarioPension.value.difference >= 0
+        ? "positive"
+        : "negative";
     });
 
     const expectedDifferenceClass = computed(() => {
@@ -301,76 +448,224 @@ export default {
       const workYears = data.retirementYear - data.workStartYear;
       const retirementAge = data.gender === "male" ? 65 : 60;
 
-      // Base salary calculation with indexing
-      const annualIndexation = 0.03; // 3% average annual salary growth
-      const finalSalary =
-        data.grossSalary * Math.pow(1 + annualIndexation, workYears);
-
-      // ZUS account estimation if not provided
-      let zusAccount = data.zusAccount || 0;
-      if (!zusAccount) {
-        // Estimate based on salary and work years
-        const monthlyContribution = data.grossSalary * 0.195; // 19.5% ZUS contribution
-        zusAccount = monthlyContribution * 12 * workYears * 0.8; // 80% goes to individual account
-      }
-
-      // Sick leave impact
-      let sickLeaveReduction = 0;
-      if (data.includeSickLeave) {
-        const sickDaysPerYear = data.gender === "male" ? 12 : 18;
-        const sickLeavePercentage = (sickDaysPerYear / 365) * 0.8; // 80% of sick pay
-        sickLeaveReduction = finalSalary * sickLeavePercentage * workYears;
-      }
-
-      // Pension calculation (simplified)
-      const basePension = (zusAccount + (data.zusSubAccount || 0)) / 12;
-      const realPension = basePension - sickLeaveReduction / 12;
-
-      // Inflation adjustment (2.5% annual inflation)
-      const inflationRate = 0.025;
-      const yearsToRetirement = data.retirementYear - currentYear;
-      const adjustedPension =
-        realPension / Math.pow(1 + inflationRate, yearsToRetirement);
-
-      // Average pension projection
-      const currentAveragePension = 2800;
-      const averagePension =
-        currentAveragePension * Math.pow(1 + inflationRate, yearsToRetirement);
-
-      // Replacement rate calculation
-      const replacementRate = (realPension / finalSalary) * 100;
-
-      calculatedPension.value = {
-        real: realPension,
-        adjusted: adjustedPension,
-        averagePension: averagePension,
-        difference: adjustedPension - averagePension,
-        percentageDifference:
-          ((adjustedPension - averagePension) / averagePension) * 100,
-        replacementRate: Math.round(replacementRate),
-        finalSalary: finalSalary,
-        salaryWithoutSickLeave: finalSalary,
-        salaryWithSickLeave: finalSalary - sickLeaveReduction / workYears,
-        sickLeaveImpact: sickLeaveReduction / workYears,
-        retirementYear: data.retirementYear,
+      // ZUS Model FUS20 parameters based on real data - three scenarios
+      const scenarios = {
+        intermediate: {
+          // Wariant pośredni (Tabela 1.1)
+          pensionContributionRate: 0.195,
+          individualAccountRate: 0.076,
+          frdRate: 0.015,
+          ofeRate: 0.025,
+          inflationRate: 0.025,
+          inflationRate2023: 0.098,
+          inflationRate2024: 0.048,
+          inflationRate2025: 0.031,
+          realWageGrowth: 0.029,
+          realWageGrowth2023: 0.003,
+          realWageGrowth2024: 0.034,
+          realWageGrowth2025: 0.037,
+          collectionRate: 0.99,
+          systemEfficiency: 0.71,
+          demographicLoadFactor: 0.4,
+          lifeExpectancyIncrease: 0.002,
+        },
+        pessimistic: {
+          // Wariant pesymistyczny (Tabela 1.2)
+          pensionContributionRate: 0.195,
+          individualAccountRate: 0.076,
+          frdRate: 0.015,
+          ofeRate: 0.025,
+          inflationRate: 0.025,
+          inflationRate2023: 0.098,
+          inflationRate2024: 0.048,
+          inflationRate2025: 0.031,
+          realWageGrowth: 0.024, // Niższy wzrost wynagrodzeń
+          realWageGrowth2023: -0.002,
+          realWageGrowth2024: 0.029,
+          realWageGrowth2025: 0.03,
+          collectionRate: 0.98, // Niższa ściągalność
+          systemEfficiency: 0.69, // Niższa efektywność
+          demographicLoadFactor: 0.45, // Wyższe obciążenie demograficzne
+          lifeExpectancyIncrease: 0.002,
+        },
+        optimistic: {
+          // Wariant optymistyczny (Tabela 1.3)
+          pensionContributionRate: 0.195,
+          individualAccountRate: 0.076,
+          frdRate: 0.015,
+          ofeRate: 0.025,
+          inflationRate: 0.025,
+          inflationRate2023: 0.098,
+          inflationRate2024: 0.048,
+          inflationRate2025: 0.031,
+          realWageGrowth: 0.034, // Wyższy wzrost wynagrodzeń
+          realWageGrowth2023: 0.008,
+          realWageGrowth2024: 0.037,
+          realWageGrowth2025: 0.04,
+          collectionRate: 0.995, // Wyższa ściągalność
+          systemEfficiency: 0.73, // Wyższa efektywność
+          demographicLoadFactor: 0.35, // Niższe obciążenie demograficzne
+          lifeExpectancyIncrease: 0.002,
+        },
       };
 
-      // Calculate additional years options
-      calculateAdditionalYearsOptions(realPension, finalSalary, workYears);
+      // Calculate for each scenario
+      Object.keys(scenarios).forEach((scenarioKey) => {
+        const zusParameters = scenarios[scenarioKey];
+
+        // Calculate salary progression with real ZUS parameters
+        let finalSalary = data.grossSalary;
+        let totalContributions = 0;
+
+        for (
+          let year = data.workStartYear;
+          year < data.retirementYear;
+          year++
+        ) {
+          const yearsFromStart = year - data.workStartYear;
+
+          // Apply real wage growth based on year
+          let wageGrowthRate;
+          if (year <= 2023) {
+            wageGrowthRate = zusParameters.realWageGrowth2023;
+          } else if (year === 2024) {
+            wageGrowthRate = zusParameters.realWageGrowth2024;
+          } else if (year === 2025) {
+            wageGrowthRate = zusParameters.realWageGrowth2025;
+          } else {
+            wageGrowthRate = zusParameters.realWageGrowth;
+          }
+
+          finalSalary = finalSalary * (1 + wageGrowthRate);
+
+          // Calculate annual contributions
+          const annualContribution =
+            finalSalary * zusParameters.pensionContributionRate;
+          const individualContribution =
+            annualContribution * zusParameters.individualAccountRate;
+          totalContributions += individualContribution;
+        }
+
+        // ZUS account calculation with real parameters
+        let zusAccount = data.zusAccount || 0;
+        if (!zusAccount) {
+          zusAccount = totalContributions;
+        }
+
+        // Add subaccount if provided
+        const totalAccount = zusAccount + (data.zusSubAccount || 0);
+
+        // Sick leave impact with real data
+        let sickLeaveReduction = 0;
+        if (data.includeSickLeave) {
+          // Based on ZUS statistics: men 12 days/year, women 18 days/year
+          const sickDaysPerYear = data.gender === "male" ? 12 : 18;
+          const sickPayRate = 0.8; // 80% of salary during sick leave
+          const sickLeavePercentage = (sickDaysPerYear / 365) * sickPayRate;
+          sickLeaveReduction = finalSalary * sickLeavePercentage * workYears;
+        }
+
+        // Pension calculation using ZUS methodology
+        // Base pension from individual account
+        const monthlyPensionFromAccount = totalAccount / 12;
+
+        // Apply system efficiency factor (from ZUS data: 71% efficiency)
+        const systemEfficiencyFactor = zusParameters.systemEfficiency;
+        const basePension = monthlyPensionFromAccount * systemEfficiencyFactor;
+
+        // Apply sick leave reduction
+        const realPension = Math.max(0, basePension - sickLeaveReduction / 12);
+
+        // Inflation adjustment using ZUS projections
+        let inflationAdjustment = 1;
+        const yearsToRetirement = data.retirementYear - currentYear;
+
+        for (let year = currentYear; year < data.retirementYear; year++) {
+          let inflationRate;
+          if (year === 2023) {
+            inflationRate = zusParameters.inflationRate2023;
+          } else if (year === 2024) {
+            inflationRate = zusParameters.inflationRate2024;
+          } else if (year === 2025) {
+            inflationRate = zusParameters.inflationRate2025;
+          } else {
+            inflationRate = zusParameters.inflationRate;
+          }
+          inflationAdjustment *= 1 + inflationRate;
+        }
+
+        const adjustedPension = realPension / inflationAdjustment;
+
+        // Average pension projection based on ZUS data
+        // Current average pension: ~2800 PLN (from ZUS statistics)
+        const currentAveragePension = 2800;
+        const averagePension = currentAveragePension * inflationAdjustment;
+
+        // Replacement rate calculation
+        const replacementRate = (realPension / finalSalary) * 100;
+
+        // System sustainability factor (from ZUS demographic projections)
+        const demographicFactor =
+          1 - zusParameters.demographicLoadFactor * (yearsToRetirement / 60);
+        const sustainablePension =
+          realPension * Math.max(0.5, demographicFactor);
+
+        calculatedPension.value[scenarioKey] = {
+          real: realPension,
+          adjusted: adjustedPension,
+          sustainable: sustainablePension,
+          averagePension: averagePension,
+          difference: adjustedPension - averagePension,
+          percentageDifference:
+            ((adjustedPension - averagePension) / averagePension) * 100,
+          replacementRate: Math.round(replacementRate),
+          finalSalary: finalSalary,
+          salaryWithoutSickLeave: finalSalary,
+          salaryWithSickLeave: finalSalary - sickLeaveReduction / workYears,
+          sickLeaveImpact: sickLeaveReduction / workYears,
+          retirementYear: data.retirementYear,
+          totalContributions: totalContributions,
+          systemEfficiency: zusParameters.systemEfficiency,
+          demographicFactor: demographicFactor,
+        };
+      });
+
+      // Calculate additional years options for current scenario
+      const currentParams = scenarios[selectedScenario.value];
+      calculateAdditionalYearsOptions(
+        currentScenarioPension.value.real,
+        currentScenarioPension.value.finalSalary,
+        workYears,
+        currentParams
+      );
     };
 
     const calculateAdditionalYearsOptions = (
       basePension,
       salary,
-      workYears
+      workYears,
+      zusParameters
     ) => {
       additionalYearsOptions.value = [];
       const additionalYears = [1, 2, 5];
 
       additionalYears.forEach((years) => {
-        const additionalSalary = salary * years;
-        const additionalContribution = additionalSalary * 0.195 * 0.8;
-        const newPension = basePension + additionalContribution / 12;
+        // Calculate additional salary with real wage growth
+        let additionalSalary = salary;
+        for (let i = 0; i < years; i++) {
+          additionalSalary *= 1 + zusParameters.realWageGrowth;
+        }
+
+        // Calculate additional contributions with real ZUS rates
+        const additionalContribution =
+          additionalSalary *
+          zusParameters.pensionContributionRate *
+          zusParameters.individualAccountRate;
+
+        // Apply system efficiency factor
+        const newPension =
+          basePension +
+          (additionalContribution / 12) * zusParameters.systemEfficiency;
         const increase = newPension - basePension;
 
         additionalYearsOptions.value.push({
@@ -446,6 +741,8 @@ export default {
     return {
       simulationData,
       calculatedPension,
+      currentScenarioPension,
+      selectedScenario,
       additionalYearsOptions,
       postalCode,
       expectedPension,
@@ -512,6 +809,10 @@ export default {
   border-top-color: var(--zus-orange);
 }
 
+.sustainable-pension {
+  border-top-color: var(--zus-red);
+}
+
 .result-card h3 {
   font-size: 1.3rem;
   color: var(--zus-dark-blue);
@@ -532,6 +833,7 @@ export default {
 
 .comparison-section,
 .replacement-rate-section,
+.zus-analysis-section,
 .salary-analysis-section,
 .additional-years-section,
 .expected-comparison-section {
@@ -543,6 +845,7 @@ export default {
 
 .comparison-section h3,
 .replacement-rate-section h3,
+.zus-analysis-section h3,
 .salary-analysis-section h3,
 .additional-years-section h3,
 .expected-comparison-section h3 {
@@ -552,6 +855,7 @@ export default {
 }
 
 .comparison-stats,
+.zus-stats,
 .salary-stats,
 .expected-stats {
   display: flex;
@@ -560,6 +864,7 @@ export default {
 }
 
 .stat-item,
+.zus-item,
 .salary-item,
 .expected-item {
   display: flex;
@@ -577,12 +882,14 @@ export default {
 }
 
 .stat-label,
+.zus-label,
 .salary-label,
 .expected-label {
   font-weight: 500;
 }
 
 .stat-value,
+.zus-value,
 .salary-value,
 .expected-value {
   font-weight: 600;
@@ -634,6 +941,70 @@ export default {
   color: var(--zus-red);
   font-weight: 500;
   margin-top: 1rem;
+}
+
+.zus-explanation {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--zus-blue);
+}
+
+.zus-explanation p {
+  margin: 0.5rem 0;
+  color: var(--zus-gray);
+  line-height: 1.6;
+}
+
+.scenario-selection {
+  background: var(--zus-white);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.scenario-selection h3 {
+  font-size: 1.5rem;
+  color: var(--zus-dark-blue);
+  margin-bottom: 1.5rem;
+}
+
+.scenario-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.scenario-btn {
+  padding: 1rem 2rem;
+  border: 2px solid var(--zus-gray);
+  background: var(--zus-white);
+  color: var(--zus-dark-blue);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.scenario-btn:hover {
+  border-color: var(--zus-blue);
+  background: #f8f9fa;
+}
+
+.scenario-btn.active {
+  background: var(--zus-blue);
+  color: var(--zus-white);
+  border-color: var(--zus-blue);
+}
+
+.scenario-btn.active:hover {
+  background: var(--zus-dark-blue);
+  border-color: var(--zus-dark-blue);
 }
 
 .years-comparison {

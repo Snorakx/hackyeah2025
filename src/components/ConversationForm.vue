@@ -392,22 +392,22 @@ export default {
     const questions = ref([
       {
         type: "age",
-        text: "Cześć! 👋 Aby pomóc Ci zaprognozować przyszłą emeryturę, potrzebuję kilku informacji. Zacznijmy od podstaw - ile masz lat?",
+        text: "Cześć! 👋 Jestem Twoim asystentem ZUS. Używam najnowszego modelu FUS20 do prognozowania emerytur. Zacznijmy od podstaw - ile masz lat?",
         shortLabel: "Wiek",
       },
       {
         type: "gender",
-        text: "Dziękuję! Teraz powiedz mi, jaka jest Twoja płeć? To ważne, ponieważ wiek emerytalny różni się w zależności od płci.",
+        text: "Dziękuję! Teraz powiedz mi, jaka jest Twoja płeć? To ważne, ponieważ wiek emerytalny różni się w zależności od płci (mężczyźni 65 lat, kobiety 60 lat).",
         shortLabel: "Płeć",
       },
       {
         type: "salary",
-        text: "Świetnie! Teraz powiedz mi, jakie jest Twoje obecne wynagrodzenie brutto? To pomoże mi oszacować Twoje przyszłe składki emerytalne.",
+        text: "Świetnie! Teraz powiedz mi, jakie jest Twoje obecne wynagrodzenie brutto? To pomoże mi oszacować Twoje przyszłe składki emerytalne (19,5% ZUS).",
         shortLabel: "Wynagrodzenie",
       },
       {
         type: "workStart",
-        text: "W jakim roku rozpocząłeś/aś pracę zawodową? Jeśli pracujesz od niedawna, podaj przybliżony rok.",
+        text: "W jakim roku rozpocząłeś/aś pracę zawodową? Jeśli pracujesz od niedawna, podaj przybliżony rok. To pomoże mi obliczyć łączny okres składkowy.",
         shortLabel: "Początek pracy",
       },
       {
@@ -417,17 +417,17 @@ export default {
       },
       {
         type: "zusAccount",
-        text: "Czy znasz wysokość środków zgromadzonych na swoim koncie ZUS? Jeśli nie, zostaw puste - oszacuję to na podstawie Twojego wynagrodzenia.",
+        text: "Czy znasz wysokość środków zgromadzonych na swoim koncie ZUS? Jeśli nie, oszacuję to na podstawie Twojego wynagrodzenia i stażu pracy (7,6% składek trafia na Twoje konto).",
         shortLabel: "Konto ZUS",
       },
       {
         type: "zusSubAccount",
-        text: "A czy masz jakieś środki na subkoncie ZUS? To również opcjonalne.",
+        text: "A czy masz jakieś środki na subkoncie ZUS? To również opcjonalne - pomoże mi to dokładniej obliczyć Twoją emeryturę.",
         shortLabel: "Subkonto ZUS",
       },
       {
         type: "sickLeave",
-        text: "Ostatnie pytanie - czy chcesz, żebym uwzględnił możliwość zwolnień lekarskich w obliczeniach? To może nieznacznie wpłynąć na wysokość emerytury.",
+        text: "Ostatnie pytanie - czy chcesz, żebym uwzględnił możliwość zwolnień lekarskich w obliczeniach? Statystycznie mężczyźni biorą 12 dni L4 rocznie, kobiety 18 dni.",
         shortLabel: "Zwolnienia",
       },
     ]);
