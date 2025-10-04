@@ -1,0 +1,282 @@
+// Glass card effects
+.glass-card {
+  @include glass-effect(9px, 0.07);
+  border-radius: $border-radius-lg;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.8),
+      transparent,
+      rgba(255, 255, 255, 0.3)
+    );
+  }
+}
+
+.glass-card-240x360 {
+  width: 240px;
+  height: 360px;
+  @include glass-effect(9px, 0.07);
+  border-radius: $border-radius-lg;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.8),
+      transparent,
+      rgba(255, 255, 255, 0.3)
+    );
+  }
+}
+
+// Enhanced glass effects
+.glass {
+  @include glass-effect(25px, 0.08);
+  border-radius: $border-radius-xl;
+  position: relative;
+}
+
+.glass-strong {
+  @include glass-effect(30px, 0.12);
+  border-radius: $border-radius-xl;
+  position: relative;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 10px 20px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(99, 102, 241, 0.15);
+}
+
+// 3D Card effects
+.card-3d {
+  transform-style: preserve-3d;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: $shadow-xl;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%, rgba(0, 0, 0, 0.05) 100%);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-12px) rotateX(3deg) rotateY(3deg);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+  }
+
+  &:active {
+    transform: translateY(-8px) rotateX(2deg) rotateY(2deg);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
+  }
+}
+
+// Card hover effects
+.card-hover {
+  @include transition(all, 0.5s, cubic-bezier(0.4, 0, 0.2, 1));
+  transform-style: preserve-3d;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%, rgba(0, 0, 0, 0.05) 100%);
+    border-radius: inherit;
+    opacity: 0;
+    @include transition(opacity, 0.3s, ease);
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.3);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+// Glow effects
+.glow-primary {
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), $shadow-xl;
+}
+
+.glow-secondary {
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.3), $shadow-xl;
+}
+
+.glow-accent {
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), $shadow-xl;
+}
+
+.glow-text {
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+// Gradient text effects
+.gradient-text {
+  @include text-gradient(linear-gradient(135deg, $primary 0%, $primary-dark 100%));
+  position: relative;
+
+  &::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: blur(8px);
+    opacity: 0.5;
+    z-index: -1;
+  }
+}
+
+.gradient-text-secondary {
+  @include text-gradient(linear-gradient(135deg, $accent 0%, $primary 100%));
+}
+
+// Animated gradients
+.animated-gradient {
+  background: linear-gradient(-45deg, #6366f1, #8b5cf6, #06b6d4, #ec4899);
+  background-size: 400% 400%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+// Modern button styles
+.btn-neo {
+  @include button-glass;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    @include transition(left, 0.7s, ease);
+  }
+
+  &:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(1.02);
+  }
+}
+
+// Form inputs
+.input-neo {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $border-radius-md;
+  padding: 14px 18px;
+  color: $text-primary;
+  @include transition(all, 0.4s, ease);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+  }
+}
+
+// Loading spinner
+.spinner-neo {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 3px solid $primary;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+// Progress bar
+.progress-3d {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: $border-radius-sm;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    @include transition(width, 0.6s, cubic-bezier(0.4, 0, 0.2, 1));
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  }
+}

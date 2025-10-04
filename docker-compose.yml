@@ -1,0 +1,30 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: cut-sprint-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: your-super-secret-and-long-postgres-password
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./supabase/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Mail service for auth emails
+  mail:
+    image: mailhog/mailhog:latest
+    container_name: cut-sprint-mail
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  postgres_data:

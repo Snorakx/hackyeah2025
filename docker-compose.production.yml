@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: cutsprint_postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./supabase/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # Supabase Auth (GoTrue)
+  auth:
+    image: supabase/gotrue:latest
+    container_name: cutsprint_auth
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_DISABLE_SIGNUP: false
+      GOTRUE_MAILER_AUTOCONFIRM: true
+      GOTRUE_SMTP_HOST: mail
+      GOTRUE_SMTP_PORT: 2500
+      GOTRUE_SMTP_USER: fake_mail_user
+      GOTRUE_SMTP_PASS: fake_mail_password
+      GOTRUE_SMTP_ADMIN_EMAIL: admin@example.com
+    ports:
+      - "9999:9999"
+    depends_on:
+      - postgres
+      - mail
+    restart: unless-stopped
+
+  # Supabase PostgREST
+  rest:
+    image: postgrest/postgrest:latest
+    container_name: cutsprint_rest
+    environment:
+      PGRST_DB_URI: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DEFAULT_RLS: 1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build:
+      context: ./cut-sprint-backend
+      dockerfile: Dockerfile
+    container_name: cutsprint_backend
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      SUPABASE_URL: http://auth:9999
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      CORS_ORIGIN: ${SITE_URL}
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - auth
+      - rest
+    restart: unless-stopped
+
+  # Mail Server (Inbucket)
+  mail:
+    image: ghcr.io/inbucket/inbucket:latest
+    container_name: cutsprint_mail
+    ports:
+      - "2500:2500"
+      - "9000:9000"
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: cutsprint_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - auth
+      - rest
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

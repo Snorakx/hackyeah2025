@@ -1,0 +1,324 @@
+{
+  "notifications": {
+    "enabled": true,
+    "templates": [
+      {
+        "id": "meal_reminder_breakfast",
+        "title": "Czas na śniadanie! 🌅",
+        "body": "Dzień dobry {{user.displayName}}! Pamiętaj o zdrowym śniadaniu.",
+        "type": "meal_reminder",
+        "category": "meal",
+        "priority": "normal",
+        "enabled": true,
+        "variables": ["user.displayName"],
+        "triggers": [
+          {
+            "type": "time",
+            "value": "08:00"
+          }
+        ],
+        "schedule": {
+          "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+          "timeRanges": [
+            {
+              "start": "07:00",
+              "end": "10:00"
+            }
+          ],
+          "maxPerDay": 1,
+          "cooldownMinutes": 360
+        },
+        "conditions": [
+          {
+            "field": "lastMealTime",
+            "operator": "lt",
+            "value": "today_00:00"
+          }
+        ]
+      },
+      {
+        "id": "goal_achievement",
+        "title": "Brawo! Cel osiągnięty! 🎉",
+        "body": "{{user.displayName}}, gratulacje! Osiągnąłeś dzisiejszy cel kaloryczny!",
+        "type": "achievement",
+        "category": "motivation",
+        "priority": "high",
+        "enabled": true,
+        "variables": ["user.displayName"],
+        "triggers": [
+          {
+            "type": "event",
+            "eventType": "goal_achieved"
+          }
+        ],
+        "schedule": {
+          "maxPerDay": 1,
+          "cooldownMinutes": 1440
+        }
+      }
+    ],
+    "settings": {
+      "allowSound": true,
+      "allowVibration": true,
+      "quietHours": {
+        "enabled": true,
+        "start": "22:00",
+        "end": "07:00"
+      },
+      "categories": [
+        {
+          "name": "meal_reminder",
+          "enabled": true,
+          "priority": "normal"
+        },
+        {
+          "name": "achievement",
+          "enabled": true,
+          "priority": "high"
+        }
+      ]
+    }
+  },
+  "dashboard": {
+    "widgets": [
+      {
+        "id": "weight_progress",
+        "type": "chart",
+        "title": "Postęp wagi",
+        "size": "medium",
+        "position": { "x": 0, "y": 0, "w": 6, "h": 4 },
+        "config": {
+          "chartType": "line",
+          "dataPoints": 30
+        },
+        "dataSource": {
+          "type": "database",
+          "query": "SELECT date, weight FROM weights WHERE user_id = ? ORDER BY date DESC LIMIT 30"
+        }
+      },
+      {
+        "id": "calories_today",
+        "type": "metric",
+        "title": "Kalorie dzisiaj",
+        "size": "small",
+        "position": { "x": 6, "y": 0, "w": 3, "h": 2 },
+        "config": {
+          "format": "number",
+          "unit": "kcal"
+        },
+        "dataSource": {
+          "type": "calculation",
+          "calculation": {
+            "formula": "consumed / target * 100",
+            "variables": ["calories.consumed", "calories.target"],
+            "unit": "%"
+          }
+        }
+      },
+      {
+        "id": "recent_meals",
+        "type": "list",
+        "title": "Ostatnie posiłki",
+        "size": "medium",
+        "position": { "x": 9, "y": 0, "w": 3, "h": 4 },
+        "config": {
+          "maxItems": 5,
+          "showTime": true
+        },
+        "dataSource": {
+          "type": "database",
+          "query": "SELECT * FROM meals WHERE user_id = ? ORDER BY created_at DESC LIMIT 5"
+        }
+      }
+    ],
+    "layout": {
+      "columns": 12,
+      "breakpoints": {
+        "mobile": 1,
+        "tablet": 6,
+        "desktop": 12
+      }
+    },
+    "refreshInterval": 30000
+  },
+  "api": {
+    "endpoints": [
+      {
+        "path": "/api/meals",
+        "method": "GET",
+        "handler": "MealController.getAll",
+        "middleware": ["auth", "rateLimit"],
+        "validation": {
+          "query": {
+            "page": { "type": "number", "min": 1 },
+            "limit": { "type": "number", "min": 1, "max": 100 }
+          }
+        },
+        "documentation": {
+          "summary": "Get user meals",
+          "description": "Retrieve paginated list of user meals",
+          "parameters": [
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "Page number"
+            }
+          ],
+          "responses": [
+            {
+              "status": 200,
+              "description": "Success",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": { "type": "boolean" },
+                  "data": { "type": "array" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "middleware": [
+      {
+        "name": "auth",
+        "type": "auth",
+        "config": {
+          "provider": "supabase",
+          "required": true
+        }
+      },
+      {
+        "name": "rateLimit",
+        "type": "rateLimit",
+        "config": {
+          "windowMs": 900000,
+          "max": 100
+        }
+      }
+    ],
+    "rateLimiting": {
+      "windowMs": 900000,
+      "max": 1000,
+      "message": "Too many requests"
+    }
+  },
+  "businessLogic": {
+    "calculations": [
+      {
+        "id": "bmi",
+        "name": "Body Mass Index",
+        "formula": "weight / (height / 100) ^ 2",
+        "variables": ["weight", "height"],
+        "unit": "kg/m²",
+        "description": "Calculate BMI from weight and height"
+      },
+      {
+        "id": "tdee",
+        "name": "Total Daily Energy Expenditure",
+        "formula": "bmr * activity_multiplier",
+        "variables": ["bmr", "activity_level"],
+        "unit": "kcal",
+        "description": "Calculate daily calorie needs"
+      }
+    ],
+    "workflows": [
+      {
+        "id": "onboarding_completion",
+        "name": "Onboarding Completion Workflow",
+        "steps": [
+          {
+            "id": "create_user",
+            "type": "action",
+            "config": {
+              "action": "create_user_record"
+            },
+            "next": "calculate_targets"
+          },
+          {
+            "id": "calculate_targets",
+            "type": "action",
+            "config": {
+              "action": "calculate_nutrition_targets"
+            },
+            "next": "send_welcome"
+          },
+          {
+            "id": "send_welcome",
+            "type": "notification",
+            "config": {
+              "template": "welcome_message"
+            }
+          }
+        ],
+        "triggers": [
+          {
+            "type": "event",
+            "config": {
+              "event": "onboarding_completed"
+            }
+          }
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "id": "calorie_validation",
+        "name": "Calorie Input Validation",
+        "condition": "calories > 0 AND calories < 10000",
+        "action": "allow_input",
+        "priority": 1,
+        "enabled": true
+      }
+    ]
+  },
+  "localization": {
+    "defaultLanguage": "pl",
+    "supportedLanguages": ["pl", "en"],
+    "translations": {
+      "pl": {
+        "onboarding.welcome": "Witaj w Fitness Tracker!",
+        "dashboard.calories": "Kalorie",
+        "notifications.meal_reminder": "Czas na posiłek!"
+      },
+      "en": {
+        "onboarding.welcome": "Welcome to Fitness Tracker!",
+        "dashboard.calories": "Calories",
+        "notifications.meal_reminder": "Time for a meal!"
+      }
+    }
+  },
+  "security": {
+    "authentication": {
+      "provider": "supabase",
+      "config": {
+        "url": "${SUPABASE_URL}",
+        "key": "${SUPABASE_ANON_KEY}"
+      }
+    },
+    "authorization": {
+      "roles": [
+        {
+          "name": "user",
+          "permissions": ["read:own_data", "write:own_data"]
+        },
+        {
+          "name": "admin",
+          "permissions": ["read:all_data", "write:all_data", "delete:all_data"]
+        }
+      ],
+      "permissions": [
+        {
+          "resource": "meals",
+          "actions": ["create", "read", "update", "delete"]
+        }
+      ]
+    },
+    "encryption": {
+      "algorithm": "AES-256-GCM",
+      "keyLength": 256
+    }
+  }
+}

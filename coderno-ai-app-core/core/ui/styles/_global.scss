@@ -1,0 +1,93 @@
+@import 'variables';
+
+/* Force dark theme - copied from cut-sprint-front */
+html, body {
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%) !important;
+  color: $text-primary !important;
+  font-family: $font-family !important;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: #000;
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: $font-family;
+  background: #000;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: white;
+  line-height: 1.6;
+}
+
+/* Form elements base styles */
+input, textarea, select {
+  font-family: $font-family;
+  font-size: $font-size-body;
+}
+
+/* Focus outline for accessibility */
+*:focus {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+}
+
+/* Ensure glassmorphism works - copied from cut-sprint-front */
+.glass-card {
+  background: rgba(255, 255, 255, 0.07) !important;
+  backdrop-filter: blur(9px) !important;
+  -webkit-backdrop-filter: blur(9px) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1) !important,
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important,
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1) !important,
+    inset 0 0 0px 0px rgba(255, 255, 255, 0) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.glass-card::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 1px !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  ) !important;
+}
+
+.glass-card::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 1px !important;
+  height: 100% !important;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.8),
+    transparent,
+    rgba(255, 255, 255, 0.3)
+  ) !important;
+}

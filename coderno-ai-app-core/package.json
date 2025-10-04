@@ -1,0 +1,35 @@
+{
+  "name": "ai-app-core",
+  "version": "2.0.0",
+  "description": "Universal AI-powered application framework",
+  "main": "index.js",
+  "bin": {
+    "ai-app": "./cli/create-app.js"
+  },
+  "scripts": {
+    "create-app": "node cli/create-app.js",
+    "run-app": "node cli/run-app.js",
+    "dev": "node cli/run-app.js",
+    "start": "node cli/run-app.js",
+    "build": "echo 'Build individual apps with: cd apps/[app-name] && npm run build'"
+  },
+  "keywords": [
+    "ai",
+    "framework",
+    "onboarding",
+    "react",
+    "typescript"
+  ],
+  "author": "HackYeah Team",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.0.0",
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0"
+  }
+}

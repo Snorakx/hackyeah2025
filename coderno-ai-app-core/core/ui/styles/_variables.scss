@@ -1,0 +1,48 @@
+// Colors
+$bg-primary: #0B0B10;
+$text-primary: #F7F8FC;
+$text-muted: #B6B7C2;
+$primary: #8B5CF6;
+$primary-dark: #6D28D9;
+$accent: #22D3EE;
+$surface: rgba(255, 255, 255, 0.06);
+$surface-strong: rgba(255, 255, 255, 0.08);
+$border: rgba(255, 255, 255, 0.14);
+
+// Neo gradient
+$neo-gradient: radial-gradient(circle at 30% -20%, rgba(139, 92, 246, 0.35) 0%, rgba(109, 40, 217, 0.25) 25%, rgba(37, 99, 235, 0.20) 50%, transparent 80%), radial-gradient(circle at 90% 120%, rgba(34, 211, 238, 0.25) 0%, rgba(59, 130, 246, 0.15) 40%, transparent 70%), #0B0B10;
+
+// Typography
+$font-family: 'Poppins', system-ui, sans-serif;
+$font-size-h1: 36px;
+$font-size-h2: 24px;
+$font-size-h3: 20px;
+$font-size-body: 16px;
+$font-size-body-sm: 14px;
+$font-size-lg: 18px;
+
+// Spacing
+$spacing-xs: 0.5rem;
+$spacing-sm: 1rem;
+$spacing-md: 1.5rem;
+$spacing-lg: 2rem;
+$spacing-xl: 2.5rem;
+$spacing-2xl: 3rem;
+
+// Border radius
+$border-radius-sm: 12px;
+$border-radius-md: 16px;
+$border-radius-lg: 20px;
+$border-radius-xl: 24px;
+
+// Shadows
+$shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 8px 25px rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.2);
+$shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+// Breakpoints
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
