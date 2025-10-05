@@ -33,17 +33,6 @@
           <div class="actions-text">
             <p>Wynik Cię nie kręci? Sprawdźmy, jak to zmienić.</p>
           </div>
-          <div class="actions-buttons">
-            <button @click="goToAdvanced" class="btn-secondary">
-              Zaawansowane opcje
-            </button>
-            <button @click="downloadReport" class="btn-outline">
-              Pobierz raport
-            </button>
-            <button @click="startNewSimulation" class="btn-primary">
-              Co mogę zrobić?
-            </button>
-          </div>
         </div>
       </div>
 
