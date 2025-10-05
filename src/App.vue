@@ -176,7 +176,7 @@
                   />
                 </g>
               </svg>
-            </div>
+          </div>
           </router-link>
           <div class="header-pills">
             <router-link

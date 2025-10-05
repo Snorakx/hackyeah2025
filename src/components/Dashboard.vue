@@ -21,26 +21,26 @@
             </p>
 
             <div class="input-section">
-              <div class="input-group">
-                <input
-                  v-model="desiredPension"
-                  type="number"
-                  min="0"
-                  step="100"
+            <div class="input-group">
+              <input
+                v-model="desiredPension"
+                type="number"
+                min="0"
+                step="100"
                   placeholder="Za ile chcesz żyć? np. 4500 zł"
-                  class="pension-input"
-                  @input="updateComparison"
+                class="pension-input"
+                @input="updateComparison"
                   @keydown.enter="proceedToSimulation"
                   aria-label="Wpisz miesięczną kwotę emerytury"
                   aria-describedby="input-help"
-                />
-                <button
-                  @click="proceedToSimulation"
+              />
+            <button
+              @click="proceedToSimulation"
                   class="btn-proceed"
-                  :disabled="!desiredPension"
-                >
+              :disabled="!desiredPension"
+            >
                   Przejdź dalej →
-                </button>
+            </button>
               </div>
               <p class="input-help" id="input-help">
                 Wpisz miesięczną kwotę, za którą chcesz wygodnie żyć na
@@ -131,7 +131,7 @@
                   </svg>
                 </div>
                 <p>Przeciągnij tutaj wydatki lub wpisz kwotę poniżej</p>
-              </div>
+            </div>
               <div v-else class="basket-items">
                 <div
                   v-for="(item, index) in basketItems"
@@ -159,10 +159,10 @@
                     aria-label="Pokaż więcej informacji"
                   >
                     i
-                  </div>
-                </div>
               </div>
             </div>
+          </div>
+        </div>
 
             <div class="total-amount" v-if="basketItems.length > 0">
               <div class="total-line"></div>

@@ -45,7 +45,6 @@
             </button>
           </div>
         </div>
-
       </div>
 
       <div v-else class="no-data">
@@ -159,8 +158,7 @@ export default {
       const data = simulationData.value;
       const currentYear = new Date().getFullYear();
 
-      // Debug: sprawdź dane
-      console.log("Simulation data:", data);
+      // Validate incoming data
 
       // Konwertuj dane na liczby
       const processedData = {
@@ -176,24 +174,19 @@ export default {
           data.includeSickLeave === true || data.includeSickLeave === "true",
       };
 
-      console.log("Processed data:", processedData);
-
       // Sprawdź czy dane są poprawne
       if (
         processedData.grossSalary <= 0 ||
         processedData.workStartYear <= 0 ||
         processedData.retirementYear <= 0
       ) {
-        console.error("Invalid data:", processedData);
+        return;
         return;
       }
 
       // Sprawdź czy retirementYear jest większy od workStartYear
       if (processedData.retirementYear <= processedData.workStartYear) {
-        console.error(
-          "Retirement year must be after work start year:",
-          processedData
-        );
+        return;
         return;
       }
 
@@ -201,21 +194,9 @@ export default {
       if (!processedData.retirementYear || processedData.retirementYear === 0) {
         const retirementAge = processedData.gender === "female" ? 60 : 65;
         processedData.retirementYear = processedData.birthYear + retirementAge;
-        console.log(
-          `Calculated retirement year: ${processedData.retirementYear} (age ${retirementAge})`
-        );
       }
 
-      console.log("Data validation passed, proceeding with calculations...");
-
       // Sprawdź szczegóły danych
-      console.log("Salary:", processedData.grossSalary);
-      console.log("Work start:", processedData.workStartYear);
-      console.log("Retirement:", processedData.retirementYear);
-      console.log(
-        "Years to work:",
-        processedData.retirementYear - processedData.workStartYear
-      );
 
       // ZUS parameters based on FUS20 model from zusananaliza.txt
       const scenarios = {
@@ -259,9 +240,6 @@ export default {
         let finalSalary = processedData.grossSalary;
         let totalContributions = 0;
 
-        console.log(`Calculating for scenario: ${scenarioKey}`);
-        console.log(`Starting salary: ${finalSalary}`);
-
         for (
           let year = processedData.workStartYear;
           year < processedData.retirementYear;
@@ -288,10 +266,6 @@ export default {
           const individualContribution =
             annualContribution * zusParameters.individualAccountRate;
           totalContributions += individualContribution;
-
-          console.log(
-            `Year ${year}: salary=${finalSalary}, annual=${annualSalary}, contribution=${annualContribution}, individual=${individualContribution}`
-          );
         }
 
         // Calculate sick leave impact
@@ -314,12 +288,6 @@ export default {
         const monthlyPensionFromAccount =
           totalContributionsWithBalance / monthsInRetirement;
 
-        console.log(`Total contributions: ${totalContributions}`);
-        console.log(`Total with balance: ${totalContributionsWithBalance}`);
-        console.log(
-          `Monthly pension from account: ${monthlyPensionFromAccount}`
-        );
-
         // Apply system efficiency factor (from ZUS data: wydolność systemu)
         // Wydolność < 100% oznacza deficyt, > 100% oznacza nadwyżkę
         const systemEfficiencyFactor = Math.min(
@@ -327,9 +295,6 @@ export default {
           zusParameters.systemEfficiency
         );
         const basePension = monthlyPensionFromAccount * systemEfficiencyFactor;
-
-        console.log(`System efficiency: ${systemEfficiencyFactor}`);
-        console.log(`Base pension: ${basePension}`);
 
         // Apply sick leave reduction
         const realPension = Math.max(0, basePension - sickLeaveReduction);
@@ -344,8 +309,6 @@ export default {
           0,
           processedData.retirementYear - currentYear
         );
-
-        console.log(`Years to retirement: ${yearsToRetirement}`);
 
         for (
           let year = currentYear;
@@ -384,11 +347,6 @@ export default {
           1 - (loadFactorProgression - 0.4) * 0.5
         );
         const sustainablePension = finalRealPension * demographicFactor;
-
-        console.log(`Final results for ${scenarioKey}:`);
-        console.log(`Real pension: ${finalRealPension}`);
-        console.log(`Adjusted pension: ${adjustedPension}`);
-        console.log(`Sustainable pension: ${sustainablePension}`);
 
         calculatedPension.value[scenarioKey] = {
           real: Math.round(finalRealPension),

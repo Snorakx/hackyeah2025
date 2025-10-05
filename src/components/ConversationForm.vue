@@ -1,14 +1,6 @@
 <template>
   <div class="conversation-form">
     <div class="container">
-      <div class="conversation-header">
-        <h2>Symulacja emerytury</h2>
-        <p>
-          Odpowiedz na kilka pytań, a pomożemy Ci zaprognozować przyszłą
-          emeryturę
-        </p>
-      </div>
-
       <!-- Progress Steps -->
       <div class="progress-section">
         <div class="progress-header">
@@ -216,9 +208,7 @@ export default {
     };
 
     const updateAnswer = (value) => {
-      console.log("updateAnswer called with:", value);
       currentAnswer.value = value;
-      console.log("currentAnswer after set:", currentAnswer.value);
       hasError.value = false;
       errorMessage.value = "";
     };
@@ -447,13 +437,13 @@ export default {
 .conversation-form {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--zus-light-gray), var(--zus-white));
-  padding: 2rem 0;
+  padding: 0.5rem 0 1.5rem 0; /* mniejsza przerwa pod headerem */
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 0.75rem;
 }
 
 .conversation-header {
@@ -463,40 +453,40 @@ export default {
 
 .conversation-header h2 {
   color: var(--zus-dark-blue);
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
   font-weight: 700;
 }
 
 .conversation-header p {
   color: var(--zus-text-light);
-  font-size: 1.2rem;
-  max-width: 600px;
+  font-size: 1rem;
+  max-width: 560px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .progress-section {
-  margin-bottom: 2rem;
+  margin: 0 0 1rem 0; /* zero górnego marginesu */
   background: white;
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .progress-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .back-button {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: var(--zus-blue);
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.35rem;
   border-radius: 50%;
   transition: background-color 0.3s ease;
 }
@@ -509,18 +499,19 @@ export default {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .step-text {
   font-weight: 600;
   color: var(--zus-text-dark);
   white-space: nowrap;
+  font-size: 0.95rem;
 }
 
 .progress-bar {
   flex: 1;
-  height: 8px;
+  height: 6px;
   background-color: #e2e8f0;
   border-radius: 4px;
   overflow: hidden;
@@ -537,21 +528,22 @@ export default {
   font-weight: 600;
   color: var(--zus-green);
   white-space: nowrap;
+  font-size: 0.95rem;
 }
 
 .conversation-container {
   background: var(--zus-white);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   overflow: hidden;
-  min-height: 600px;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--zus-light-gray);
 }
 
 .current-question {
-  padding: 2rem;
+  padding: 1.25rem;
   border-top: 1px solid var(--zus-light-gray);
   background: var(--zus-white);
 }

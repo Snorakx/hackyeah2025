@@ -15,9 +15,7 @@
           <img class="chat-avatar small" :src="avatarSrc" alt="Chatbot ZUS" />
           <div class="title-wrap">
             <div class="chat-title">Zusini Goosini</div>
-            <div class="chat-subtitle">
-              <span class="dot"></span> Asystent ZUS • Online
-            </div>
+            <div class="chat-subtitle"><span class="dot"></span> Asystent ZUS • Online</div>
           </div>
         </div>
         <button class="chat-close" aria-label="Zamknij" @click="toggle">
@@ -40,16 +38,7 @@
           aria-label="Pole wiadomości"
         />
         <button class="send-btn" :disabled="!draft.trim()" aria-label="Wyślij">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 2L11 13" />
             <path d="M22 2l-7 20-4-9-9-4 20-7z" />
           </svg>
@@ -219,7 +208,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 12px 14px;
-  background: linear-gradient(180deg, #085e2e, #0a7c3e);
+  background: linear-gradient(180deg, #0f7a3d, #089e4a);
   color: #fff;
 }
 
@@ -228,28 +217,10 @@ export default {
   align-items: center;
   gap: 8px;
 }
-.title-wrap {
-  display: flex;
-  flex-direction: column;
-}
-.chat-title {
-  font-weight: 700;
-  color: #fff;
-}
-.chat-subtitle {
-  font-size: 12px;
-  opacity: 0.9;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.chat-subtitle .dot {
-  width: 8px;
-  height: 8px;
-  background: #9af1b8;
-  border-radius: 50%;
-  display: inline-block;
-}
+.title-wrap { display: flex; flex-direction: column; }
+.chat-title { font-weight: 700; color: #fff; }
+.chat-subtitle { font-size: 12px; opacity: 0.9; display: flex; align-items: center; gap: 6px; }
+.chat-subtitle .dot { width: 8px; height: 8px; background: #9af1b8; border-radius: 50%; display: inline-block; }
 .chat-close {
   background: transparent;
   border: none;
@@ -264,7 +235,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: #f7fafc;
 }
 
 .msg {
@@ -273,43 +243,13 @@ export default {
   max-width: 80%;
   line-height: 1.4;
   font-size: 14px;
-  position: relative;
 }
-.msg.bot {
-  background: #e6f6eb;
-  color: #0b3a6b;
-  align-self: flex-start;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-  border-top-left-radius: 4px;
-}
-.msg.bot::after {
-  content: "";
-  position: absolute;
-  left: -6px;
-  bottom: 6px;
-  width: 0;
-  height: 0;
-  border-right: 6px solid #e6f6eb;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-}
+.msg.bot { background: #e6f6eb; color: #0b3a6b; align-self: flex-start; box-shadow: 0 1px 0 rgba(0,0,0,.05); }
 .msg.user {
   background: #00a651;
   color: #fff;
   align-self: flex-end;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-  border-top-right-radius: 4px;
-}
-.msg.user::after {
-  content: "";
-  position: absolute;
-  right: -6px;
-  bottom: 6px;
-  width: 0;
-  height: 0;
-  border-left: 6px solid #00a651;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
+  box-shadow: 0 1px 0 rgba(0,0,0,.05);
 }
 
 .chat-input {
@@ -329,8 +269,7 @@ export default {
   background: #00a651;
   color: #fff;
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border-radius: 50%;
   font-weight: 600;
   cursor: pointer;
