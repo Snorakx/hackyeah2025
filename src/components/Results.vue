@@ -29,11 +29,7 @@
         <AdditionalYears :options="additionalYearsOptions" />
 
         <!-- Actions -->
-        <div class="actions-section">
-          <div class="actions-text">
-            <p>Wynik Cię nie kręci? Sprawdźmy, jak to zmienić.</p>
-          </div>
-        </div>
+        
       </div>
 
       <div v-else class="no-data">
