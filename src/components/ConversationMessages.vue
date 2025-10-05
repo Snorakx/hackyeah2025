@@ -1,5 +1,10 @@
 <template>
-  <div class="conversation-messages" role="log" aria-live="polite" aria-label="Historia rozmowy">
+  <div
+    class="conversation-messages"
+    role="log"
+    aria-live="polite"
+    aria-label="Historia rozmowy"
+  >
     <!-- All Messages in Order -->
     <MessageBubble
       v-for="(message, index) in messages"
@@ -45,10 +50,11 @@ export default {
 <style scoped>
 .conversation-messages {
   flex: 1;
-  padding: 1rem 2rem;
-  max-height: 400px;
+  padding: 2rem;
+  max-height: 500px;
   overflow-y: auto;
   scroll-behavior: smooth;
-  background: var(--zus-light-gray);
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 16px 16px 0 0;
 }
 </style>

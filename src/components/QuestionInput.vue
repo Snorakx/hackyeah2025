@@ -20,15 +20,15 @@
     </div>
 
     <div class="input-container">
-      <!-- Input dla wieku -->
+      <!-- Input dla roku urodzenia -->
       <input
         v-if="question.type === 'age'"
         :id="inputId"
         v-model="localValue"
         type="number"
-        min="18"
-        max="70"
-        :placeholder="question.placeholder || 'Wprowadź swój wiek'"
+        :min="minYear"
+        :max="currentYear"
+        :placeholder="question.placeholder || 'Wprowadź rok urodzenia'"
         class="form-input"
         :class="{ 'input-error': hasError }"
         :aria-describedby="errorId"
@@ -39,23 +39,51 @@
         ref="inputRef"
       />
 
-      <!-- Select dla płci -->
-      <select
-        v-else-if="question.type === 'gender'"
-        :id="inputId"
-        v-model="localValue"
-        class="form-select"
-        :class="{ 'input-error': hasError }"
-        :aria-describedby="errorId"
-        :aria-invalid="hasError"
-        @change="handleChange"
-        @focus="handleFocus"
-        ref="inputRef"
-      >
-        <option value="">Wybierz płeć</option>
-        <option value="male">Mężczyzna</option>
-        <option value="female">Kobieta</option>
-      </select>
+      <!-- Przyciski dla płci -->
+      <div v-else-if="question.type === 'gender'" class="gender-buttons">
+        <button
+          type="button"
+          :class="['gender-button', { selected: localValue === 'female' }]"
+          @click="selectGender('female')"
+          @keydown.enter="selectGender('female')"
+          :aria-pressed="localValue === 'female'"
+        >
+          <span class="gender-icon">👩</span>
+          <span class="gender-text">Kobieta</span>
+        </button>
+        <button
+          type="button"
+          :class="['gender-button', { selected: localValue === 'male' }]"
+          @click="selectGender('male')"
+          @keydown.enter="selectGender('male')"
+          :aria-pressed="localValue === 'male'"
+        >
+          <span class="gender-icon">👨</span>
+          <span class="gender-text">Mężczyzna</span>
+        </button>
+      </div>
+
+      <!-- Przyciski dla typu umowy -->
+      <div v-else-if="question.type === 'contract'" class="contract-buttons">
+        <button
+          v-for="option in question.options"
+          :key="option.value"
+          type="button"
+          :class="[
+            'contract-button',
+            { selected: localValue === option.value },
+          ]"
+          @click="selectContract(option.value)"
+          @keydown.enter="selectContract(option.value)"
+          :aria-pressed="localValue === option.value"
+        >
+          <span class="contract-text">{{ option.label }}</span>
+          <span v-if="localValue === option.value" class="checkmark">✓</span>
+        </button>
+        <div v-if="localValue === 'contract'" class="contract-info">
+          Tu nic się nie odkłada. Pokażemy, co z tym zrobić.
+        </div>
+      </div>
 
       <!-- Input dla wynagrodzenia -->
       <input
@@ -169,9 +197,15 @@
           :aria-invalid="hasError"
           @change="handleChange"
           @focus="handleFocus"
+          @keydown.enter="handleCheckboxEnter"
           ref="inputRef"
         />
-        <label :for="inputId" class="checkbox-label">
+        <label
+          :for="inputId"
+          class="checkbox-label"
+          @keydown.enter="handleCheckboxEnter"
+          tabindex="0"
+        >
           Tak, uwzględnij możliwość zwolnień lekarskich
         </label>
       </div>
@@ -191,7 +225,7 @@
         :disabled="!canSubmit"
         :aria-describedby="errorId"
       >
-        {{ submitText }}
+        {{ submitText }} →
       </button>
     </div>
   </div>
@@ -237,7 +271,14 @@ export default {
     const errorId = computed(() => `error-${props.question.type}`);
 
     const canSubmit = computed(() => {
-      if (props.question.type === "sickLeave") return true;
+      // Opcjonalne pola zawsze mogą być submitowane
+      if (
+        props.question.type === "sickLeave" ||
+        props.question.type === "zusAccount" ||
+        props.question.type === "zusSubAccount"
+      ) {
+        return true;
+      }
       return (
         localValue.value !== "" &&
         localValue.value !== null &&
@@ -267,10 +308,69 @@ export default {
       emit("blur");
     };
 
-    // Auto-focus na input po załadowaniu
+    const handleArrowUp = (event) => {
+      event.preventDefault();
+      const select = event.target;
+      const options = Array.from(select.options);
+      const currentIndex = options.findIndex(
+        (option) => option.value === select.value
+      );
+      if (currentIndex > 1) {
+        // Skip disabled option
+        select.selectedIndex = currentIndex - 1;
+        localValue.value = select.value;
+        handleChange();
+      }
+    };
+
+    const handleArrowDown = (event) => {
+      event.preventDefault();
+      const select = event.target;
+      const options = Array.from(select.options);
+      const currentIndex = options.findIndex(
+        (option) => option.value === select.value
+      );
+      if (currentIndex < options.length - 1) {
+        select.selectedIndex = currentIndex + 1;
+        localValue.value = select.value;
+        handleChange();
+      }
+    };
+
+    const selectGender = (gender) => {
+      console.log("selectGender called with:", gender);
+      localValue.value = gender;
+      console.log("localValue after set:", localValue.value);
+      // handleChange() - usunięte, bo watch automatycznie emituje
+    };
+
+    const selectContract = (contract) => {
+      localValue.value = contract;
+      // handleChange() - usunięte, bo watch automatycznie emituje
+    };
+
+    const handleSelectEnter = (event) => {
+      event.preventDefault();
+      const select = event.target;
+      // Otwórz select programowo
+      select.focus();
+      select.click();
+    };
+
+    const handleCheckboxEnter = (event) => {
+      event.preventDefault();
+      localValue.value = !localValue.value;
+      handleChange();
+    };
+
+    // Auto-focus na input po załadowaniu i czyszczenie wartości
     watch(
       () => props.question,
-      () => {
+      (newQuestion, oldQuestion) => {
+        // Wyczyść wartość tylko jeśli pytanie się zmieniło (nie przy pierwszym renderowaniu)
+        if (oldQuestion && newQuestion.type !== oldQuestion.type) {
+          localValue.value = "";
+        }
         nextTick(() => {
           if (inputRef.value) {
             inputRef.value.focus();
@@ -281,8 +381,13 @@ export default {
     );
 
     // Obserwuj zmiany wartości
-    watch(localValue, (newValue) => {
-      emit("update:value", newValue);
+    watch(localValue, (newValue, oldValue) => {
+      console.log("watch localValue:", { newValue, oldValue });
+      // Nie emituj pustej wartości na początku
+      if (oldValue !== undefined) {
+        console.log("emitting update:value:", newValue);
+        emit("update:value", newValue);
+      }
     });
 
     return {
@@ -300,6 +405,12 @@ export default {
       handleChange,
       handleFocus,
       handleBlur,
+      handleArrowUp,
+      handleArrowDown,
+      handleSelectEnter,
+      handleCheckboxEnter,
+      selectGender,
+      selectContract,
     };
   },
 };
@@ -392,6 +503,17 @@ export default {
   font-size: 1.1rem;
   transition: all 0.3s ease;
   background: var(--zus-white);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  padding-right: 3rem;
 }
 
 .form-input:focus,
@@ -399,6 +521,7 @@ export default {
   outline: none;
   border-color: var(--zus-blue);
   box-shadow: 0 0 0 3px rgba(63, 132, 210, 0.2);
+  transform: translateY(-1px);
 }
 
 .form-input.input-error,
@@ -428,6 +551,123 @@ export default {
   color: var(--zus-text-dark);
   cursor: pointer;
   line-height: 1.4;
+  outline: none;
+}
+
+.checkbox-label:focus {
+  outline: 2px solid var(--zus-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Gender buttons */
+.gender-buttons {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.gender-button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.gender-button:hover {
+  border-color: var(--zus-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(63, 132, 210, 0.15);
+}
+
+.gender-button.selected {
+  border-color: var(--zus-green);
+  background: rgba(0, 153, 63, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 153, 63, 0.15);
+}
+
+.gender-button:focus {
+  outline: 3px solid var(--zus-blue);
+  outline-offset: 2px;
+}
+
+.gender-icon {
+  font-size: 2rem;
+}
+
+.gender-text {
+  font-weight: 600;
+  color: var(--zus-text-dark);
+}
+
+/* Contract buttons */
+.contract-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.contract-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  text-align: left;
+  width: 100%;
+}
+
+.contract-button:hover {
+  border-color: var(--zus-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(63, 132, 210, 0.15);
+}
+
+.contract-button.selected {
+  border-color: var(--zus-green);
+  background: rgba(0, 153, 63, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 153, 63, 0.15);
+}
+
+.contract-button:focus {
+  outline: 3px solid var(--zus-blue);
+  outline-offset: 2px;
+}
+
+.contract-text {
+  font-weight: 500;
+  color: var(--zus-text-dark);
+}
+
+.checkmark {
+  color: var(--zus-green);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.contract-info {
+  background: rgba(0, 153, 63, 0.1);
+  border: 1px solid var(--zus-green);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--zus-dark-green);
+  text-align: center;
 }
 
 .error-message {
@@ -444,7 +684,7 @@ export default {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--zus-blue), var(--zus-dark-blue));
+  background: var(--zus-green);
   color: var(--zus-white);
   border: none;
   padding: 1rem 2rem;
@@ -454,6 +694,10 @@ export default {
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .btn-primary:hover:not(:disabled) {

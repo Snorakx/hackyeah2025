@@ -90,7 +90,7 @@ export default {
   text-align: center;
   flex: 1;
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 .step-number {
@@ -105,6 +105,9 @@ export default {
   margin-bottom: 0.5rem;
   transition: all 0.3s ease;
   border: 3px solid;
+  position: relative;
+  z-index: 3;
+  background: var(--zus-white);
 }
 
 .step-completed .step-number {
@@ -185,7 +188,7 @@ export default {
   right: 20px;
   height: 2px;
   background: var(--zus-light-gray);
-  z-index: 1;
+  z-index: 0;
 }
 
 .step-item:not(:last-child)::after {
@@ -196,7 +199,7 @@ export default {
   right: -50%;
   height: 2px;
   background: var(--zus-light-gray);
-  z-index: 1;
+  z-index: 0;
 }
 
 .step-completed:not(:last-child)::after {

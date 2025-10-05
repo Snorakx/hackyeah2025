@@ -12,7 +12,9 @@
     </div>
     <div class="message-content">
       <div class="message-text">{{ text }}</div>
-      <div class="message-time" aria-label="Czas wiadomości">{{ timestamp }}</div>
+      <div class="message-time" aria-label="Czas wiadomości">
+        {{ timestamp }}
+      </div>
     </div>
     <div v-if="type === 'user'" class="message-avatar">
       <div class="avatar user-avatar" aria-label="Użytkownik">Ty</div>
@@ -86,10 +88,12 @@ export default {
 
 .bot-message .avatar {
   background: linear-gradient(135deg, var(--zus-blue), var(--zus-dark-blue));
+  box-shadow: 0 2px 8px rgba(63, 132, 210, 0.3);
 }
 
 .user-message .avatar {
   background: linear-gradient(135deg, var(--zus-green), var(--zus-dark-green));
+  box-shadow: 0 2px 8px rgba(0, 153, 63, 0.3);
 }
 
 .message-content {
@@ -103,12 +107,14 @@ export default {
   background: var(--zus-white);
   border: 1px solid var(--zus-gray);
   border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .user-message .message-content {
-  background: linear-gradient(135deg, var(--zus-blue), var(--zus-dark-blue));
+  background: linear-gradient(135deg, var(--zus-green), var(--zus-dark-green));
   color: var(--zus-white);
   border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 153, 63, 0.2);
 }
 
 .message-text {

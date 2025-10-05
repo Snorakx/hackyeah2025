@@ -3,24 +3,25 @@
     <div class="results-grid">
       <!-- Main Pension Display -->
       <div class="pension-card main-pension">
-        <h4>Twoja prognozowana emerytura</h4>
+        <h4>
+          Za ~30 lat będziesz dostawać: {{ formatCurrency(pension.real) }} zł
+        </h4>
         <div class="pension-amounts">
           <div class="pension-item">
-            <span class="pension-label">Wysokość rzeczywista</span>
+            <span class="pension-label">Ile dostaniesz</span>
             <span class="pension-value real">
               {{ formatCurrency(pension.real) }} zł
             </span>
-            <p class="pension-description">
-              Kwota, którą otrzymasz na konto
-            </p>
+            <p class="pension-description">Kwota, którą otrzymasz na konto</p>
           </div>
           <div class="pension-item">
-            <span class="pension-label">Wysokość urealniona</span>
+            <span class="pension-label">Co za to kupisz</span>
             <span class="pension-value adjusted">
               {{ formatCurrency(pension.adjusted) }} zł
             </span>
             <p class="pension-description">
-              Wartość w dzisiejszych pieniądzach
+              ~{{ formatCurrency(pension.adjusted) }} zł w dzisiejszych cenach.
+              Inflacja zrobi swoje.
             </p>
           </div>
           <div class="pension-item">
@@ -38,7 +39,9 @@
         <h4>Porównanie ze średnią emeryturą</h4>
         <div class="comparison-stats">
           <div class="stat-item">
-            <span class="stat-label">Średnia emerytura w {{ pension.retirementYear }}</span>
+            <span class="stat-label"
+              >Średnia emerytura w {{ pension.retirementYear }}</span
+            >
             <span class="stat-value">
               {{ formatCurrency(pension.averagePension) }} zł
             </span>
@@ -46,15 +49,14 @@
           <div class="stat-item">
             <span class="stat-label">Różnica</span>
             <span class="stat-value" :class="differenceClass">
-              {{ formatCurrency(pension.difference) }} zł
-              ({{ pension.percentageDifference > 0 ? '+' : '' }}{{ Math.round(pension.percentageDifference) }}%)
+              {{ formatCurrency(pension.difference) }} zł ({{
+                pension.percentageDifference > 0 ? "+" : ""
+              }}{{ Math.round(pension.percentageDifference) }}%)
             </span>
           </div>
           <div class="stat-item">
             <span class="stat-label">Stopa zastąpienia</span>
-            <span class="stat-value">
-              {{ pension.replacementRate }}%
-            </span>
+            <span class="stat-value"> {{ pension.replacementRate }}% </span>
           </div>
         </div>
       </div>
@@ -217,11 +219,11 @@ export default {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .pension-amounts {
     gap: 1rem;
   }
-  
+
   .pension-value {
     font-size: 1.5rem;
   }

@@ -11,11 +11,39 @@
 
       <!-- Progress Steps -->
       <div class="progress-section">
-        <ProgressSteps 
-          :current-step="currentQuestionIndex + 1"
-          :total-steps="progressSteps.length"
-          :steps="progressSteps"
-        />
+        <div class="progress-header">
+          <button
+            v-if="currentQuestionIndex > 0"
+            @click="goBack"
+            class="back-button"
+            aria-label="Wróć do poprzedniego kroku"
+          >
+            ←
+          </button>
+          <div class="progress-info">
+            <span class="step-text"
+              >Krok {{ currentQuestionIndex + 1 }} z
+              {{ progressSteps.length }}</span
+            >
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                :style="{
+                  width: `${
+                    ((currentQuestionIndex + 1) / progressSteps.length) * 100
+                  }%`,
+                }"
+              ></div>
+            </div>
+            <span class="progress-percentage"
+              >{{
+                Math.round(
+                  ((currentQuestionIndex + 1) / progressSteps.length) * 100
+                )
+              }}%</span
+            >
+          </div>
+        </div>
       </div>
 
       <!-- Conversation Flow -->
@@ -33,7 +61,9 @@
             :value="currentAnswer"
             :has-error="hasError"
             :error-message="errorMessage"
-            :submit-text="currentQuestion.type === 'sickLeave' ? 'Kontynuuj' : 'Odpowiedz'"
+            :submit-text="
+              currentQuestion.type === 'sickLeave' ? 'Kontynuuj' : 'Dalej'
+            "
             @update:value="updateAnswer"
             @submit="submitAnswer"
             @focus="hideTypingIndicator"
@@ -83,74 +113,55 @@ export default {
     const hasError = ref(false);
     const errorMessage = ref("");
 
-    // Questions configuration
+    // Questions configuration - tylko 4 kroki jak na obrazkach
     const questions = ref([
       {
-        type: "age",
-        text: "Ile masz lat?",
-        label: "Wiek",
-        help: "Wprowadź swój aktualny wiek (od 18 do 70 lat)",
-        placeholder: "Wprowadź swój wiek",
-      },
-      {
         type: "gender",
-        text: "Jaka jest Twoja płeć?",
+        text: "Jesteś kobietą czy mężczyzną?",
         label: "Płeć",
-        help: "Wybierz swoją płeć - wpływa to na wiek emerytalny",
+        help: "Wiek emerytalny w Polsce: kobiety – 60 lat, mężczyźni – 65 lat. Dlatego pytamy.",
       },
       {
-        type: "salary",
-        text: "Jaka jest Twoja obecna wysokość wynagrodzenia brutto?",
-        label: "Wynagrodzenie brutto",
-        help: "Wprowadź miesięczne wynagrodzenie brutto (przed odliczeniem podatków i składek)",
-        placeholder: "Wprowadź wynagrodzenie brutto",
+        type: "age",
+        text: "Podaj rok urodzenia.",
+        label: "Rok urodzenia",
+        help: "Potrzebujemy tego, żeby policzyć, ile lat zostało Ci do emerytury.",
+        placeholder: "np. 1999",
       },
       {
         type: "workStart",
-        text: "W którym roku rozpocząłeś/rozpoczęłaś pracę?",
-        label: "Rok rozpoczęcia pracy",
-        help: "Podaj rok, w którym rozpocząłeś aktywność zawodową",
-        placeholder: "Wprowadź rok rozpoczęcia pracy",
+        text: "Kiedy była Twoja pierwsza wypłata?",
+        label: "Rok pierwszej wypłaty",
+        help: "Liczy się rok, kiedy pierwszy raz dostałeś kasę za pracę – nieważne jaka umowa.",
+        placeholder: "np. 2020",
       },
       {
-        type: "retirement",
-        text: "W którym roku planujesz przejść na emeryturę?",
-        label: "Planowany rok emerytury",
-        help: "Podaj rok, w którym chcesz przejść na emeryturę",
-        placeholder: "Wprowadź planowany rok emerytury",
+        type: "contract",
+        text: "Jak zarabiasz?",
+        label: "Typ umowy",
+        help: "Od typu umowy zależy, ile odkładasz na emeryturę. Na etacie to 19,52% pensji, na zleceniu i dziele – 0%.",
+        options: [
+          { value: "employment", label: "Etat" },
+          { value: "contract", label: "Zlecenie / Dzieło" },
+          { value: "business", label: "JDG" },
+        ],
       },
       {
-        type: "zusAccount",
-        text: "Ile masz obecnie zgromadzone na koncie w ZUS? (opcjonalne)",
-        label: "Środki na koncie ZUS",
-        help: "Jeśli znasz kwotę na swoim koncie ZUS, możesz ją podać (nie jest obowiązkowe)",
-        placeholder: "Wprowadź kwotę na koncie ZUS",
-      },
-      {
-        type: "zusSubAccount",
-        text: "Ile masz obecnie zgromadzone na subkoncie w ZUS? (opcjonalne)",
-        label: "Środki na subkoncie ZUS",
-        help: "Jeśli znasz kwotę na swoim subkoncie ZUS, możesz ją podać (nie jest obowiązkowe)",
-        placeholder: "Wprowadź kwotę na subkoncie ZUS",
-      },
-      {
-        type: "sickLeave",
-        text: "Czy chcesz uwzględnić możliwość zwolnień lekarskich w symulacji?",
-        label: "Zwolnienia lekarskie",
-        help: "Symulacja może uwzględnić średnią długość zwolnień lekarskich w ciągu życia",
+        type: "salary",
+        text: "Ile zarabiasz miesięcznie?",
+        label: "Pensja",
+        help: "Podaj kwotę brutto (przed opodatkowaniem). To pomoże nam policzyć, ile odkładasz na emeryturę.",
+        placeholder: "np. 5000",
       },
     ]);
 
-    // Progress steps
+    // Progress steps - 5 kroków
     const progressSteps = ref([
-      { label: "Wiek", description: "Podstawowe dane" },
       { label: "Płeć", description: "Dane osobowe" },
-      { label: "Wynagrodzenie", description: "Sytuacja finansowa" },
-      { label: "Kariera", description: "Historia pracy" },
-      { label: "Emerytura", description: "Plany na przyszłość" },
-      { label: "Konto ZUS", description: "Środki zgromadzone" },
-      { label: "Subkonto", description: "Dodatkowe środki" },
-      { label: "Zwolnienia", description: "Opcje symulacji" },
+      { label: "Rok urodzenia", description: "Podstawowe dane" },
+      { label: "Pierwsza wypłata", description: "Historia pracy" },
+      { label: "Typ umowy", description: "Forma zatrudnienia" },
+      { label: "Pensja", description: "Wynagrodzenie" },
     ]);
 
     // Computed properties
@@ -205,13 +216,15 @@ export default {
     };
 
     const updateAnswer = (value) => {
+      console.log("updateAnswer called with:", value);
       currentAnswer.value = value;
+      console.log("currentAnswer after set:", currentAnswer.value);
       hasError.value = false;
       errorMessage.value = "";
     };
 
     const validateAnswer = () => {
-      if (currentQuestion.value?.type === "sickLeave") return;
+      // Wszystkie pola w 5-krokowym formularzu są wymagane
 
       if (!currentAnswer.value || currentAnswer.value === "") {
         hasError.value = true;
@@ -221,10 +234,24 @@ export default {
 
       // Additional validation for specific types
       if (currentQuestion.value?.type === "age") {
-        const age = parseInt(currentAnswer.value);
-        if (age < 18 || age > 70) {
+        const birthYear = parseInt(currentAnswer.value);
+        const currentYear = new Date().getFullYear();
+        const age = currentYear - birthYear;
+
+        if (age < 18) {
           hasError.value = true;
-          errorMessage.value = "Wiek musi być między 18 a 70 lat";
+          errorMessage.value =
+            "Hej, masz mniej niż 18 lat? Wróć do nas za kilka lat 😊";
+          return false;
+        }
+        if (age > 70) {
+          hasError.value = true;
+          errorMessage.value = "Sprawdź rok urodzenia – coś tu nie gra.";
+          return false;
+        }
+        if (birthYear < 1950 || birthYear > currentYear) {
+          hasError.value = true;
+          errorMessage.value = "Sprawdź rok urodzenia – podaj prawdziwy rok.";
           return false;
         }
       }
@@ -246,7 +273,10 @@ export default {
     const submitAnswer = () => {
       if (!validateAnswer()) return;
 
-      const responseText = formatResponse(currentAnswer.value, currentQuestion.value);
+      // Wszystkie pola są wymagane w 5-krokowym formularzu
+      let valueToSubmit = currentAnswer.value;
+
+      const responseText = formatResponse(valueToSubmit, currentQuestion.value);
       addMessage(responseText, "user");
 
       // Store user response
@@ -284,19 +314,24 @@ export default {
     const formatResponse = (value, question) => {
       switch (question.type) {
         case "age":
-          return `${value} lat`;
+          return `rok ${value}`;
         case "gender":
           return value === "male" ? "Mężczyzna" : "Kobieta";
         case "salary":
           return `${parseFloat(value).toLocaleString("pl-PL")} zł`;
+        case "contract":
+          const contractOptions = {
+            employment: "Umowa o pracę (etat)",
+            contract: "Zlecenie",
+            work: "Dzieło",
+            mixed: "Mieszam różne umowy",
+            business: "Własna firma (JDG)",
+          };
+          return contractOptions[value] || value;
         case "workStart":
         case "retirement":
           return value;
-        case "zusAccount":
-        case "zusSubAccount":
-          return value ? `${parseFloat(value).toLocaleString("pl-PL")} zł` : "Nie podano";
-        case "sickLeave":
-          return value ? "Tak" : "Nie";
+        // Usunięte pola nie są już w formularzu
         default:
           return value;
       }
@@ -311,7 +346,10 @@ export default {
 
       showTypingIndicator();
       setTimeout(() => {
-        addMessage("Możesz edytować swoje odpowiedzi lub kontynuować z obecnymi danymi.", "bot");
+        addMessage(
+          "Możesz edytować swoje odpowiedzi lub kontynuować z obecnymi danymi.",
+          "bot"
+        );
         setTimeout(() => {
           hideTypingIndicator();
         }, 100);
@@ -334,15 +372,37 @@ export default {
 
     const calculatePension = () => {
       // Store data in sessionStorage
+      const birthYear = userResponses.value.find(
+        (r) => r.type === "age"
+      )?.rawValue;
+      const currentYear = new Date().getFullYear();
+      const age = currentYear - birthYear;
+
       const simulationData = {
-        age: userResponses.value.find((r) => r.type === "age")?.rawValue,
+        age: age,
+        birthYear: birthYear,
         gender: userResponses.value.find((r) => r.type === "gender")?.rawValue,
-        grossSalary: userResponses.value.find((r) => r.type === "salary")?.rawValue,
-        workStartYear: userResponses.value.find((r) => r.type === "workStart")?.rawValue,
-        retirementYear: userResponses.value.find((r) => r.type === "retirement")?.rawValue,
-        zusAccount: userResponses.value.find((r) => r.type === "zusAccount")?.rawValue || 0,
-        zusSubAccount: userResponses.value.find((r) => r.type === "zusSubAccount")?.rawValue || 0,
-        includeSickLeave: userResponses.value.find((r) => r.type === "sickLeave")?.rawValue || false,
+        grossSalary:
+          parseFloat(
+            userResponses.value.find((r) => r.type === "salary")?.rawValue
+          ) || 0,
+        contractType: userResponses.value.find((r) => r.type === "contract")
+          ?.rawValue,
+        workStartYear:
+          parseInt(
+            userResponses.value.find((r) => r.type === "workStart")?.rawValue
+          ) || 0,
+        retirementYear: (() => {
+          // Oblicz rok emerytury na podstawie wieku i płci
+          const gender = userResponses.value.find(
+            (r) => r.type === "gender"
+          )?.rawValue;
+          const retirementAge = gender === "female" ? 60 : 65;
+          return birthYear + retirementAge;
+        })(),
+        zusAccount: 0, // Nie ma w formularzu
+        zusSubAccount: 0, // Nie ma w formularzu
+        includeSickLeave: false, // Nie ma w formularzu
       };
 
       sessionStorage.setItem("simulationData", JSON.stringify(simulationData));
@@ -418,16 +478,76 @@ export default {
 
 .progress-section {
   margin-bottom: 2rem;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--zus-blue);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: rgba(63, 132, 210, 0.1);
+}
+
+.progress-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.step-text {
+  font-weight: 600;
+  color: var(--zus-text-dark);
+  white-space: nowrap;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--zus-green), var(--zus-light-green));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-percentage {
+  font-weight: 600;
+  color: var(--zus-green);
+  white-space: nowrap;
 }
 
 .conversation-container {
   background: var(--zus-white);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   min-height: 600px;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--zus-light-gray);
 }
 
 .current-question {
@@ -440,7 +560,7 @@ export default {
   .conversation-header h2 {
     font-size: 2rem;
   }
-  
+
   .conversation-header p {
     font-size: 1rem;
   }
