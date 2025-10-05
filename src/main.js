@@ -6,6 +6,7 @@ import Simulation from "./components/Simulation.vue";
 import Results from "./components/Results.vue";
 import AdvancedDashboard from "./components/AdvancedDashboard.vue";
 import AdminPanel from "./components/AdminPanel.vue";
+import Pitch from "./components/Pitch.vue";
 
 const routes = [
   { path: "/", component: Dashboard },
@@ -13,6 +14,7 @@ const routes = [
   { path: "/results", component: Results },
   { path: "/advanced", component: AdvancedDashboard },
   { path: "/admin", component: AdminPanel },
+  { path: "/pitch", component: Pitch },
 ];
 
 const router = createRouter({

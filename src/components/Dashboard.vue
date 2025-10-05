@@ -1,10 +1,20 @@
 <template>
   <div class="dashboard">
+    <!-- Skip Link for WCAG compliance -->
+    <a
+      href="#main-content"
+      class="skip-link"
+      :class="{ 'skip-link-visible': showSkipLink }"
+      @blur="hideSkipLink"
+    >
+      Przejdź do treści
+    </a>
+
     <div class="container">
       <div class="dashboard-layout">
         <!-- Left Section -->
         <div class="left-section">
-          <div class="main-content">
+          <div class="main-content" id="main-content" tabindex="-1">
             <h1>Za ile chcesz żyć, gdy trochę zwolnisz?</h1>
             <p class="subtitle">
               Dodaj wydatki lub wpisz kwotę — zobacz, czy plan się spina.
@@ -20,6 +30,9 @@
                   placeholder="Za ile chcesz żyć? np. 4500 zł"
                   class="pension-input"
                   @input="updateComparison"
+                  @keydown.enter="proceedToSimulation"
+                  aria-label="Wpisz miesięczną kwotę emerytury"
+                  aria-describedby="input-help"
                 />
                 <button
                   @click="proceedToSimulation"
@@ -29,7 +42,7 @@
                   Przejdź dalej →
                 </button>
               </div>
-              <p class="input-help">
+              <p class="input-help" id="input-help">
                 Wpisz miesięczną kwotę, za którą chcesz wygodnie żyć na
                 emeryturze
               </p>
@@ -37,15 +50,49 @@
 
             <div class="info-icons">
               <div class="info-item">
-                <div class="info-icon">🛡️</div>
+                <div class="info-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                </div>
                 <span>Bezpieczne dane</span>
               </div>
               <div class="info-item">
-                <div class="info-icon">📈</div>
+                <div class="info-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12" />
+                  </svg>
+                </div>
                 <span>Oparte na realnych stawkach</span>
               </div>
               <div class="info-item">
-                <div class="info-icon">🧮</div>
+                <div class="info-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <path d="M9 9h6v6H9z" />
+                  </svg>
+                </div>
                 <span>100% darmowe</span>
               </div>
             </div>
@@ -62,9 +109,27 @@
               :class="{ 'has-items': basketItems.length > 0 }"
               @dragover.prevent
               @drop="handleDrop"
+              role="list"
+              aria-label="Koszyk z wydatkami"
+              tabindex="0"
+              @keydown.enter="handleBasketKeydown"
+              @keydown.space="handleBasketKeydown"
             >
               <div v-if="basketItems.length === 0" class="empty-basket">
-                <div class="basket-icon">🛒</div>
+                <div class="basket-icon">
+                  <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"
+                    />
+                  </svg>
+                </div>
                 <p>Przeciągnij tutaj wydatki lub wpisz kwotę poniżej</p>
               </div>
               <div v-else class="basket-items">
@@ -73,12 +138,28 @@
                   :key="index"
                   class="basket-item"
                   @click="removeFromBasket(index)"
+                  @keydown.enter="removeFromBasket(index)"
+                  @keydown.delete="removeFromBasket(index)"
+                  role="listitem"
+                  tabindex="0"
+                  :aria-label="`${item.name} - ${item.amount} zł. Naciśnij Enter lub Delete aby usunąć`"
                 >
+                  <span class="item-icon">{{ item.icon }}</span>
                   <div class="item-content">
-                    <span class="item-icon">{{ item.icon }}</span>
                     <span class="item-name">{{ item.name }}</span>
+                    <span class="item-amount">{{ item.amount }} zł</span>
                   </div>
-                  <span class="item-amount">{{ item.amount }} zł</span>
+                  <div
+                    class="info-icon"
+                    tabindex="0"
+                    @mouseenter="showTooltip(item.id, $event)"
+                    @mouseleave="hideTooltip"
+                    @focus="showTooltip(item.id, $event)"
+                    @blur="hideTooltip"
+                    aria-label="Pokaż więcej informacji"
+                  >
+                    i
+                  </div>
                 </div>
               </div>
             </div>
@@ -94,20 +175,38 @@
 
           <div class="available-expenses">
             <h4>Dostępne wydatki</h4>
-            <div class="expenses-grid">
+            <div
+              class="expenses-grid"
+              role="grid"
+              aria-label="Lista dostępnych wydatków"
+            >
               <div
                 v-for="expense in availableExpenses"
                 :key="expense.id"
                 class="expense-item"
                 :class="{ selected: selectedExpense === expense.id }"
                 @click="addToBasket(expense)"
+                @keydown.enter="addToBasket(expense)"
+                @keydown.space="addToBasket(expense)"
                 @dragstart="handleDragStart($event, expense)"
+                @mouseenter="showTooltip(expense.id, $event)"
+                @mouseleave="hideTooltip"
+                @focus="showTooltip(expense.id, $event)"
+                @blur="hideTooltip"
                 draggable="true"
+                role="gridcell"
+                tabindex="0"
+                :aria-label="`Dodaj ${expense.name} do koszyka`"
+                :aria-describedby="`expense-${expense.id}-description`"
               >
                 <div class="expense-icon">{{ expense.icon }}</div>
                 <div class="expense-content">
                   <div class="expense-name">{{ expense.name }}</div>
                   <div class="expense-amount">{{ expense.amount }} zł</div>
+                </div>
+                <div class="info-icon">i</div>
+                <div :id="`expense-${expense.id}-description`" class="sr-only">
+                  {{ expense.name }} - {{ expense.amount }} zł miesięcznie
                 </div>
               </div>
             </div>
@@ -115,6 +214,12 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div v-if="tooltip.visible" class="tooltip" :style="tooltip.style">
+      <div class="tooltip-content">{{ tooltip.text }}</div>
+      <div class="tooltip-arrow"></div>
     </div>
   </div>
 </template>
@@ -129,19 +234,78 @@ export default {
     const router = useRouter();
     const desiredPension = ref("");
 
+    // Skip link functionality for WCAG
+    const showSkipLink = ref(false);
+    let hasTabbedOnce = false;
+
+    // Tooltip functionality
+    const tooltip = ref({
+      visible: false,
+      text: "",
+      style: {},
+    });
+
     // Basket functionality
     const basketItems = ref([]);
     const selectedExpense = ref(null);
 
     const availableExpenses = ref([
-      { id: 1, name: "Mieszkanie / Czynsz", amount: 1500, icon: "🏠" },
-      { id: 2, name: "Jedzenie", amount: 1200, icon: "🛒" },
-      { id: 3, name: "Rachunki", amount: 500, icon: "💡" },
-      { id: 4, name: "Transport", amount: 400, icon: "🚗" },
-      { id: 5, name: "Zdrowie", amount: 300, icon: "💊" },
-      { id: 6, name: "Rozrywka", amount: 400, icon: "🎬" },
-      { id: 7, name: "Ubrania", amount: 300, icon: "👕" },
-      { id: 8, name: "Wakacje", amount: 600, icon: "✈️" },
+      {
+        id: 1,
+        name: "Mieszkanie / Czynsz",
+        amount: 1500,
+        tooltip: "Czynsz, opłaty za mieszkanie i media",
+        icon: "🏠",
+      },
+      {
+        id: 2,
+        name: "Jedzenie",
+        amount: 1200,
+        tooltip: "Zakupy spożywcze, restauracje i napoje",
+        icon: "🛒",
+      },
+      {
+        id: 3,
+        name: "Rachunki",
+        amount: 500,
+        tooltip: "Prąd, gaz, woda, internet i telefon",
+        icon: "💡",
+      },
+      {
+        id: 4,
+        name: "Transport",
+        amount: 400,
+        tooltip: "Paliwo, bilety komunikacji miejskiej i taksówki",
+        icon: "🚗",
+      },
+      {
+        id: 5,
+        name: "Zdrowie",
+        amount: 300,
+        tooltip: "Leki, wizyty lekarskie i ubezpieczenie zdrowotne",
+        icon: "🍎",
+      },
+      {
+        id: 6,
+        name: "Rozrywka",
+        amount: 400,
+        tooltip: "Kino, teatr, gry, książki i hobby",
+        icon: "🎬",
+      },
+      {
+        id: 7,
+        name: "Ubrania",
+        amount: 300,
+        tooltip: "Odzież, buty i akcesoria",
+        icon: "👕",
+      },
+      {
+        id: 8,
+        name: "Wakacje",
+        amount: 600,
+        tooltip: "Podróże, hotele, wycieczki i wypoczynek",
+        icon: "🌴",
+      },
     ]);
 
     // Basket functions
@@ -197,8 +361,62 @@ export default {
       }
     };
 
+    // Skip link functions
+    const showSkipLinkOnTab = () => {
+      if (!hasTabbedOnce) {
+        hasTabbedOnce = true;
+        showSkipLink.value = true;
+      }
+    };
+
+    const hideSkipLink = () => {
+      showSkipLink.value = false;
+    };
+
+    const handleBasketKeydown = () => {
+      // Handle keyboard navigation for basket
+    };
+
+    // Tooltip functions
+    const showTooltip = (expenseId, evt) => {
+      const expense = availableExpenses.value.find((e) => e.id === expenseId);
+      if (!expense) return;
+      const target = evt?.currentTarget;
+      if (!target) {
+        tooltip.value = { visible: true, text: expense.tooltip, style: {} };
+        return;
+      }
+
+      const rect = target.getBoundingClientRect();
+      const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const top = rect.top + scrollY - 44; // show above icon
+      const left = rect.left + scrollX + rect.width / 2; // center horizontally
+
+      tooltip.value = {
+        visible: true,
+        text: expense.tooltip,
+        style: {
+          position: "absolute",
+          top: `${top}px`,
+          left: `${left}px`,
+          transform: "translate(-50%, -8px)",
+          zIndex: 1000,
+        },
+      };
+    };
+
+    const hideTooltip = () => {
+      tooltip.value.visible = false;
+    };
+
     onMounted(() => {
-      // Initialize component
+      // Add keyboard event listener for Tab key
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Tab") {
+          showSkipLinkOnTab();
+        }
+      });
     });
 
     return {
@@ -215,12 +433,88 @@ export default {
       addToBasket,
       removeFromBasket,
       handleDrop,
+      // Skip link functionality
+      showSkipLink,
+      hideSkipLink,
+      handleBasketKeydown,
+      // Tooltip functionality
+      tooltip,
+      showTooltip,
+      hideTooltip,
     };
   },
 };
 </script>
 
 <style scoped>
+/* Skip link for WCAG compliance */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--zus-green);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+  z-index: 1000;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+.skip-link-visible {
+  top: 6px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: absolute;
+  background: #1a202c;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  max-width: 400px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.tooltip-arrow {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #1a202c;
+}
+
+.tooltip-content {
+  white-space: normal;
+  word-break: break-word;
+}
+
 .dashboard {
   min-height: 100vh;
   background: #f8f9fa;
@@ -392,15 +686,15 @@ export default {
 
 .basket-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 32px 12px 12px;
+  padding: 12px;
   background: white;
   border: 1px solid #00a651;
   border-radius: 6px;
   margin-bottom: 8px;
   cursor: pointer;
   position: relative;
+  gap: 12px;
 }
 
 .basket-item:hover {
@@ -409,30 +703,32 @@ export default {
 
 .basket-item .item-content {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  flex: 1;
+  gap: 2px;
 }
 
 .basket-item .item-icon {
-  font-size: 16px;
-  width: 20px;
-  height: 20px;
+  font-size: 18px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .basket-item .item-name {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 300;
   color: #1a365d;
   line-height: 1.2;
 }
 
 .basket-item .item-amount {
-  font-size: 14px;
+  font-size: 12px;
   color: #00a651;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .basket-item::after {
@@ -457,6 +753,12 @@ export default {
 .basket-item:hover::after {
   opacity: 1;
   background: rgba(113, 128, 150, 0.2);
+}
+
+.basket-item:focus {
+  outline: 3px solid #00a651;
+  outline-offset: 2px;
+  background: #f8f9fa;
 }
 
 .total-amount {
@@ -534,8 +836,34 @@ export default {
   background: #f0fff4;
 }
 
+.expense-item:focus {
+  outline: 3px solid #00a651;
+  outline-offset: 2px;
+  border-color: #00a651;
+  background: white;
+}
+
 .expense-icon {
   font-size: 1.2rem;
+}
+
+.info-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #718096;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.basket-item .info-icon {
+  margin-left: 0;
 }
 
 .expense-content {

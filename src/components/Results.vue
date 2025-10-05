@@ -46,19 +46,6 @@
           </div>
         </div>
 
-        <!-- Postal Code -->
-        <div class="postal-code-section">
-          <h4>Kod pocztowy (opcjonalny)</h4>
-          <p>Pomóż nam lepiej zrozumieć potrzeby różnych regionów</p>
-          <input
-            v-model="postalCode"
-            type="text"
-            placeholder="Wprowadź kod pocztowy"
-            class="postal-input"
-            maxlength="6"
-            pattern="[0-9]{2}-[0-9]{3}"
-          />
-        </div>
       </div>
 
       <div v-else class="no-data">
@@ -94,7 +81,6 @@ export default {
   setup() {
     const router = useRouter();
     const simulationData = ref(null);
-    const postalCode = ref("");
     const expectedPension = ref(null);
     const selectedScenario = ref("intermediate");
 
@@ -495,7 +481,6 @@ export default {
         ...simulationData.value,
         results: calculatedPension.value,
         selectedScenario: selectedScenario.value,
-        postalCode: postalCode.value,
       };
 
       ReportGenerator.generateReport(reportData);
@@ -523,7 +508,6 @@ export default {
 
     return {
       simulationData,
-      postalCode,
       expectedPension,
       selectedScenario,
       calculatedPension,

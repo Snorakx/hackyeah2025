@@ -178,32 +178,26 @@
               </svg>
             </div>
           </router-link>
-          <nav class="main-nav">
+          <div class="header-pills">
             <router-link
               to="/"
-              class="nav-link"
-              exact-active-class="router-link-active"
-              >Pulpit</router-link
+              class="pill"
+              :class="{ active: route.path === '/' }"
+              aria-label="Kalkulator"
             >
+              <span class="pill-icon">📊</span>
+              <span>Kalkulator</span>
+            </router-link>
             <router-link
-              to="/simulation"
-              class="nav-link"
-              active-class="router-link-active"
-              >Symulacja</router-link
+              to="/pitch"
+              class="pill"
+              :class="{ active: route.path === '/pitch' }"
+              aria-label="Pitch"
             >
-            <router-link
-              to="/advanced"
-              class="nav-link"
-              active-class="router-link-active"
-              >Zaawansowane</router-link
-            >
-            <router-link
-              to="/admin"
-              class="nav-link"
-              active-class="router-link-active"
-              >Admin</router-link
-            >
-          </nav>
+              <span class="pill-icon">💡</span>
+              <span>Pitch</span>
+            </router-link>
+          </div>
         </div>
       </div>
     </header>
@@ -212,12 +206,77 @@
       <router-view />
     </main>
 
+    <!-- Chatbot on every page -->
+    <ChatWidget />
+
     <footer class="app-footer">
       <div class="container">
-        <p>
-          &copy; 2025 Zakład Ubezpieczeń Społecznych. Wszystkie prawa
-          zastrzeżone.
-        </p>
+        <div class="footer-content">
+          <div class="footer-item">
+            <div class="footer-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+                />
+              </svg>
+            </div>
+            <span class="footer-text">Elektroniczny ZUS</span>
+          </div>
+
+          <div class="footer-item">
+            <div class="footer-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+                />
+              </svg>
+            </div>
+            <span class="footer-text">LinkedIn</span>
+          </div>
+
+          <div class="footer-item">
+            <div class="footer-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+                />
+              </svg>
+            </div>
+            <span class="footer-text">X</span>
+          </div>
+
+          <div class="footer-item">
+            <div class="footer-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M4 11a9 9 0 0 1 9 9" />
+                <path d="M4 4a16 16 0 0 1 16 16" />
+                <circle cx="5" cy="19" r="1" />
+                <circle cx="5" cy="5" r="1" />
+              </svg>
+            </div>
+            <span class="footer-text">Kanał RSS</span>
+          </div>
+        </div>
       </div>
     </footer>
   </div>
@@ -226,9 +285,11 @@
 <script>
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import ChatWidget from "./components/ChatWidget.vue";
 
 export default {
   name: "App",
+  components: { ChatWidget },
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -333,6 +394,42 @@ body {
   gap: 1.5rem;
 }
 
+.app-title-text {
+  margin-left: 12px;
+  font-size: 18px;
+  color: #0b3a6b;
+  font-weight: 600;
+}
+
+.header-pills {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+  background: #f2fbf6;
+  padding: 6px 10px;
+  border-radius: 12px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: #0b3a6b;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+}
+
+.pill-icon {
+  font-size: 14px;
+}
+.pill.active {
+  outline: 2px solid rgba(0, 166, 81, 0.25);
+}
+
 .nav-link {
   color: #333;
   text-decoration: none;
@@ -373,11 +470,53 @@ body {
 }
 
 .app-footer {
-  background-color: var(--zus-dark-blue);
+  background-color: var(--zus-green);
   color: var(--zus-white);
-  text-align: center;
-  padding: 1rem 0;
+  padding: 2rem 0;
   margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.footer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.footer-item:hover {
+  opacity: 0.8;
+}
+
+.footer-icon {
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.footer-icon svg {
+  width: 28px;
+  height: 28px;
+  color: var(--zus-green);
+}
+
+.footer-text {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* WCAG 2.0 Compliance */
@@ -448,6 +587,42 @@ textarea:focus,
 
   .nav-link.router-link-active::after {
     display: none;
+  }
+}
+
+/* Footer responsive design */
+@media (max-width: 768px) {
+  .footer-content {
+    gap: 2rem;
+  }
+
+  .footer-item {
+    gap: 0.5rem;
+  }
+
+  .footer-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .footer-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .footer-text {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .footer-item {
+    justify-content: center;
   }
 }
 </style>
